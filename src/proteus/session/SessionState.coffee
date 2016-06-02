@@ -157,8 +157,12 @@ module.exports = class SessionState
     TypeUtil.assert_is_instance Envelope, envelope
     TypeUtil.assert_is_instance CipherMessage, msg
 
-    idx = @recv_chains.findIndex((c) -> c.ratchet_key.fingerprint() is msg.ratchet_key.fingerprint())
-    if idx is -1
+    idx = -1
+    found_index = @recv_chains.some (recv_chain, index) ->
+      idx = index
+      recv_chain.ratchet_key.fingerprint() is msg.ratchet_key.fingerprint()
+
+    if not found_index
       @ratchet msg.ratchet_key
       idx = 0
 

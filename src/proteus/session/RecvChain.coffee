@@ -56,8 +56,12 @@ module.exports = class RecvChain
     if @message_keys[0] && @message_keys[0].counter > msg.counter
       throw new DecryptError.OutdatedMessage
 
-    idx = @message_keys.findIndex((mk) -> mk.counter == msg.counter)
-    if idx == -1
+    idx = -1
+    found_index = @message_keys.some (message_key, index) ->
+      idx = index
+      message_key.counter is msg.counter
+
+    if not found_index
       throw new DecryptError.DuplicateMessage
 
     mk = @message_keys.splice(idx, 1)[0]
