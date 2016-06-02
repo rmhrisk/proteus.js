@@ -1,9 +1,8 @@
 {
   "name": "proteus",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "dependencies": {
-	"coffee-script": "~1",
-
+    "coffee-script": "~1",
     "cbor-codec": "wireapp/cbor-codec.js#v1.0.0",
     "libsodium": "wireapp/libsodium.js#master"
   },
@@ -21,10 +20,9 @@
     "url": "https://github.com/wireapp/proteus.js/issues"
   },
   "scripts": {
-	"build": "coffee -co build src",
-
-	"install": "npm run build",
-	"test": "mocha --compilers coffee:coffee-script/register -s 30000 -t 30000 --recursive test/harness.js test"
+    "build": "coffee -co build src",
+    "install": "npm run build",
+    "test": "mocha --compilers coffee:coffee-script/register -s 30000 -t 30000 --recursive test/harness.js test"
   },
   "homepage": "https://github.com/wireapp/proteus.js",
   "main": "build/proteus.js"
