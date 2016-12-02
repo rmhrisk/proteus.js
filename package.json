@@ -8,7 +8,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "coffee-script": "1.11.1",
-    "mocha": "2.5.3",
+    "mocha": "3.2.0",
     "webpack": "2.1.0-beta.21"
   },
   "homepage": "https://github.com/wireapp/proteus.js",
