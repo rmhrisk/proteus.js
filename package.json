@@ -8,6 +8,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "coffee-script": "1.11.1",
+    "cpx": "^1.5.0",
     "mocha": "2.5.3",
     "webpack": "^2.2.0-rc.0"
   },
@@ -20,8 +21,8 @@
     "url": "git://github.com/wireapp/proteus.js.git"
   },
   "scripts": {
-    "build": "coffee -co dist/commonjs src",
-    "bundle": "npm run build && webpack --progress",
+    "copy": "cpx 'src/**/*' dist/commonjs",
+    "bundle": "npm run copy && webpack --progress",
     "prepublish": "npm run bundle && npm test",
     "test": "mocha --compilers coffee:coffee-script/register -s 30000 -t 30000 --recursive test/harness.js test --trace-warnings"
   },
