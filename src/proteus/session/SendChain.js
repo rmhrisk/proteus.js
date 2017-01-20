@@ -38,7 +38,7 @@ module.exports = SendChain = (function() {
     throw new DontCallConstructor(this);
   }
 
-  SendChain["new"] = function(chain_key, keypair) {
+  SendChain.new = function(chain_key, keypair) {
     var sc;
     TypeUtil.assert_is_instance(ChainKey, chain_key);
     TypeUtil.assert_is_instance(KeyPair, keypair);

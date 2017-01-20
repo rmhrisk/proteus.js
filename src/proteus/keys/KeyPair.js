@@ -22,30 +22,23 @@
 var CBOR, ClassUtil, DontCallConstructor, KeyPair, PublicKey, SecretKey, TypeUtil, ed2curve, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 ed2curve = require('ed2curve');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('./PublicKey');
-
 SecretKey = require('./SecretKey');
 
 
-//Construct an ephemeral key pair.
+// Construct an ephemeral key pair.
 
 module.exports = KeyPair = (function() {
   function KeyPair() {
     throw new DontCallConstructor(this);
   }
 
-  KeyPair["new"] = function() {
+  KeyPair.new = function() {
     var ed25519_key_pair, kp;
     ed25519_key_pair = sodium.crypto_sign_keypair();
     kp = ClassUtil.new_instance(KeyPair);
@@ -53,7 +46,6 @@ module.exports = KeyPair = (function() {
     kp.public_key = KeyPair.prototype._construct_public_key(ed25519_key_pair);
     return kp;
   };
-
 
   /*
    * @note Ed25519 keys can be converted to Curve25519 keys, so that the same key pair can be used both for authenticated encryption (crypto_box) and for signatures (crypto_sign).
@@ -64,25 +56,22 @@ module.exports = KeyPair = (function() {
    * @return [Proteus.keys.SecretKey] Constructed private key
    * @see https://download.libsodium.org/doc/advanced/ed25519-curve25519.html
    */
-
   KeyPair.prototype._construct_private_key = function(ed25519_key_pair) {
     var sk_curve25519, sk_ed25519;
     sk_ed25519 = ed25519_key_pair.privateKey;
     sk_curve25519 = ed2curve.convertSecretKey(sk_ed25519);
-    return SecretKey["new"](sk_ed25519, sk_curve25519);
+    return SecretKey.new(sk_ed25519, sk_curve25519);
   };
-
 
   /*
    * @param ed25519_key_pair [libsodium.KeyPair] Key pair based on Edwards-curve (Ed25519)
    * @return [Proteus.keys.PublicKey] Constructed public key
    */
-
   KeyPair.prototype._construct_public_key = function(ed25519_key_pair) {
     var pk_curve25519, pk_ed25519;
     pk_ed25519 = ed25519_key_pair.publicKey;
     pk_curve25519 = ed2curve.convertPublicKey(pk_ed25519);
-    return PublicKey["new"](pk_ed25519, pk_curve25519);
+    return PublicKey.new(pk_ed25519, pk_curve25519);
   };
 
   KeyPair.prototype.encode = function(e) {

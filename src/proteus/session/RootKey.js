@@ -19,24 +19,17 @@
 
 'use strict';
 
-var CBOR, ChainKey, CipherKey, ClassUtil, DerivedSecrets, DontCallConstructor, KeyPair, PublicKey, RootKey, TypeUtil;
+var CBOR, ChainKey, CipherKey, ClassUtil, DerivedSecrets, DontCallConstructor, KeyPair, PublicKey,
+    RootKey, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('../keys/PublicKey');
-
 KeyPair = require('../keys/KeyPair');
-
 DerivedSecrets = require('../derived/DerivedSecrets');
-
 CipherKey = require('../derived/CipherKey');
-
 ChainKey = require('./ChainKey');
 
 module.exports = RootKey = (function() {

@@ -22,15 +22,10 @@
 var CBOR, ClassUtil, DontCallConstructor, PublicKey, TypeUtil, ed2curve, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 ed2curve = require('ed2curve');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
 
 module.exports = PublicKey = (function() {
@@ -38,7 +33,7 @@ module.exports = PublicKey = (function() {
     throw new DontCallConstructor(this);
   }
 
-  PublicKey["new"] = function(pub_edward, pub_curve) {
+  PublicKey.new = function(pub_edward, pub_curve) {
     var pk;
     TypeUtil.assert_is_instance(Uint8Array, pub_edward);
     TypeUtil.assert_is_instance(Uint8Array, pub_curve);

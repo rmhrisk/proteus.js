@@ -19,48 +19,31 @@
 
 'use strict';
 
-var ArrayUtil, CBOR, ChainKey, CipherMessage, ClassUtil, DecryptError, DerivedSecrets, DontCallConstructor, Envelope, IdentityKey, IdentityKeyPair, KeyPair, PreKeyBundle, PreKeyMessage, PublicKey, RecvChain, RootKey, SendChain, Session, SessionState, SessionTag, TypeUtil;
+var ArrayUtil, CBOR, ChainKey, CipherMessage, ClassUtil, DecryptError, DerivedSecrets,
+    DontCallConstructor, Envelope, IdentityKey, IdentityKeyPair, KeyPair, PreKeyBundle,
+    PreKeyMessage, PublicKey, RecvChain, RootKey, SendChain, Session, SessionState, SessionTag,
+    TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 ArrayUtil = require('../util/ArrayUtil');
-
 DecryptError = require('../errors/DecryptError');
-
 DerivedSecrets = require('../derived/DerivedSecrets');
-
 IdentityKeyPair = require('../keys/IdentityKeyPair');
-
 IdentityKey = require('../keys/IdentityKey');
-
 PreKeyBundle = require('../keys/PreKeyBundle');
-
 PublicKey = require('../keys/PublicKey');
-
 KeyPair = require('../keys/KeyPair');
-
 Envelope = require('../message/Envelope');
-
 CipherMessage = require('../message/CipherMessage');
-
 PreKeyMessage = require('../message/PreKeyMessage');
-
 SessionTag = require('../message/SessionTag');
-
 RecvChain = require('./RecvChain');
-
 SendChain = require('./SendChain');
-
 ChainKey = require('./ChainKey');
-
 RootKey = require('./RootKey');
-
 Session = require('./Session');
 
 module.exports = SessionState = (function() {
@@ -77,14 +60,18 @@ module.exports = SessionState = (function() {
     TypeUtil.assert_is_instance(IdentityKeyPair, alice_identity_pair);
     TypeUtil.assert_is_instance(KeyPair, alice_base);
     TypeUtil.assert_is_instance(PreKeyBundle, bob_pkbundle);
-    master_key = ArrayUtil.concatenate_array_buffers([alice_identity_pair.secret_key.shared_secret(bob_pkbundle.public_key), alice_base.secret_key.shared_secret(bob_pkbundle.identity_key.public_key), alice_base.secret_key.shared_secret(bob_pkbundle.public_key)]);
-    dsecs = DerivedSecrets.kdf_without_salt(master_key, "handshake");
+    master_key = ArrayUtil.concatenate_array_buffers([
+      alice_identity_pair.secret_key.shared_secret(bob_pkbundle.public_key),
+      alice_base.secret_key.shared_secret(bob_pkbundle.identity_key.public_key),
+      alice_base.secret_key.shared_secret(bob_pkbundle.public_key)
+    ]);
+    dsecs = DerivedSecrets.kdf_without_salt(master_key, 'handshake');
     rootkey = RootKey.from_cipher_key(dsecs.cipher_key);
     chainkey = ChainKey.from_mac_key(dsecs.mac_key, 0);
-    recv_chains = [RecvChain["new"](chainkey, bob_pkbundle.public_key)];
-    send_ratchet = KeyPair["new"]();
+    recv_chains = [RecvChain.new(chainkey, bob_pkbundle.public_key)];
+    send_ratchet = KeyPair.new();
     ref = rootkey.dh_ratchet(send_ratchet, bob_pkbundle.public_key), rok = ref[0], chk = ref[1];
-    send_chain = SendChain["new"](chk, send_ratchet);
+    send_chain = SendChain.new(chk, send_ratchet);
     state = ClassUtil.new_instance(SessionState);
     state.recv_chains = recv_chains;
     state.send_chain = send_chain;
@@ -99,11 +86,15 @@ module.exports = SessionState = (function() {
     TypeUtil.assert_is_instance(KeyPair, bob_prekey);
     TypeUtil.assert_is_instance(IdentityKey, alice_ident);
     TypeUtil.assert_is_instance(PublicKey, alice_base);
-    master_key = ArrayUtil.concatenate_array_buffers([bob_prekey.secret_key.shared_secret(alice_ident.public_key), bob_ident.secret_key.shared_secret(alice_base), bob_prekey.secret_key.shared_secret(alice_base)]);
-    dsecs = DerivedSecrets.kdf_without_salt(master_key, "handshake");
+    master_key = ArrayUtil.concatenate_array_buffers([
+      bob_prekey.secret_key.shared_secret(alice_ident.public_key),
+      bob_ident.secret_key.shared_secret(alice_base),
+      bob_prekey.secret_key.shared_secret(alice_base)
+    ]);
+    dsecs = DerivedSecrets.kdf_without_salt(master_key, 'handshake');
     rootkey = RootKey.from_cipher_key(dsecs.cipher_key);
     chainkey = ChainKey.from_mac_key(dsecs.mac_key, 0);
-    send_chain = SendChain["new"](chainkey, bob_prekey);
+    send_chain = SendChain.new(chainkey, bob_prekey);
     state = ClassUtil.new_instance(SessionState);
     state.recv_chains = [];
     state.send_chain = send_chain;
@@ -113,12 +104,13 @@ module.exports = SessionState = (function() {
   };
 
   SessionState.prototype.ratchet = function(ratchet_key) {
-    var new_ratchet, recv_chain, recv_chain_key, recv_root_key, ref, ref1, send_chain, send_chain_key, send_root_key;
-    new_ratchet = KeyPair["new"]();
+    var new_ratchet, recv_chain, recv_chain_key, recv_root_key, ref, ref1, send_chain,
+        send_chain_key, send_root_key;
+    new_ratchet = KeyPair.new();
     ref = this.root_key.dh_ratchet(this.send_chain.ratchet_key, ratchet_key), recv_root_key = ref[0], recv_chain_key = ref[1];
     ref1 = recv_root_key.dh_ratchet(new_ratchet, ratchet_key), send_root_key = ref1[0], send_chain_key = ref1[1];
-    recv_chain = RecvChain["new"](recv_chain_key, ratchet_key);
-    send_chain = SendChain["new"](send_chain_key, new_ratchet);
+    recv_chain = RecvChain.new(recv_chain_key, ratchet_key);
+    send_chain = SendChain.new(send_chain_key, new_ratchet);
     this.root_key = send_root_key;
     this.prev_counter = this.send_chain.chain_key.idx;
     this.send_chain = send_chain;
@@ -147,11 +139,11 @@ module.exports = SessionState = (function() {
     TypeUtil.assert_is_instance(IdentityKey, identity_key);
     TypeUtil.assert_is_instance(SessionTag, tag);
     msgkeys = this.send_chain.chain_key.message_keys();
-    message = CipherMessage["new"](tag, this.send_chain.chain_key.idx, this.prev_counter, this.send_chain.ratchet_key.public_key, msgkeys.encrypt(plaintext));
+    message = CipherMessage.new(tag, this.send_chain.chain_key.idx, this.prev_counter, this.send_chain.ratchet_key.public_key, msgkeys.encrypt(plaintext));
     if (pending) {
-      message = PreKeyMessage["new"](pending[0], pending[1], identity_key, message);
+      message = PreKeyMessage.new(pending[0], pending[1], identity_key, message);
     }
-    env = Envelope["new"](msgkeys.mac_key, message);
+    env = Envelope.new(msgkeys.mac_key, message);
     this.send_chain.chain_key = this.send_chain.chain_key.next();
     return env;
   };

@@ -38,7 +38,7 @@ module.exports = MessageKeys = (function() {
     throw new DontCallConstructor(this);
   }
 
-  MessageKeys["new"] = function(cipher_key, mac_key, counter) {
+  MessageKeys.new = function(cipher_key, mac_key, counter) {
     var mk;
     TypeUtil.assert_is_instance(CipherKey, cipher_key);
     TypeUtil.assert_is_instance(MacKey, mac_key);

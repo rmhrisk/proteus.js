@@ -58,7 +58,7 @@ assert_init_from_message = function(ident, store, msg, expected) {
       s = x[0], msg = x[1];
       assert.strictEqual(sodium.to_string(msg), expected);
       return resolve(s);
-    })["catch"](function(e) {
+    }).catch(function(e) {
       return reject(e);
     });
   });
@@ -69,7 +69,7 @@ assert_decrypt = function(expected, p) {
     return p.then(function(actual) {
       assert.strictEqual(expected, sodium.to_string(actual));
       return resolve();
-    })["catch"](function(e) {
+    }).catch(function(e) {
       return reject(e);
     });
   });
@@ -91,13 +91,13 @@ describe('Session', function() {
   it('can be serialised and deserialised to/from CBOR', function() {
     var alice_ident, alice_store, bob_bundle, bob_ident, bob_prekey, bob_store, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle).then(function(alice) {
       assert(alice.session_states[alice.session_tag].state.recv_chains.length === 1);
       return assert_serialise_deserialise(alice_ident, alice);
@@ -106,13 +106,13 @@ describe('Session', function() {
   it('encrypts and decrypts messages', function(done) {
     var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_alice, hello_bob, hello_bob_delayed, ping_bob_1, ping_bob_2, pong_alice, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -181,13 +181,13 @@ describe('Session', function() {
   it('should limit the number of receive chains', function(done) {
     var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle).then(function(s) {
@@ -228,13 +228,13 @@ describe('Session', function() {
   it('should handle a counter mismatch', function(done) {
     var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, ciphertexts, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     ciphertexts = null;
@@ -270,7 +270,7 @@ describe('Session', function() {
         return new Promise(function(resolve, reject) {
           return alice.decrypt(alice_store, x).then(function() {
             return assert.fail('should have raised Proteus.errors.DecryptError.DuplicateMessage');
-          })["catch"](function(e) {
+          }).catch(function(e) {
             assert.instanceOf(e, Proteus.errors.DecryptError.DuplicateMessage);
             return resolve();
           });
@@ -288,11 +288,11 @@ describe('Session', function() {
   it('should handle multiple prekey messages', function(done) {
     var alice, alice_ident, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_bob1, hello_bob2, hello_bob3, ref;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     bob_store = new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob1 = null;
@@ -326,15 +326,15 @@ describe('Session', function() {
   it('should handle simultaneous prekey messages', function(done) {
     var alice, alice_bundle, alice_ident, alice_prekey, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_alice, hello_bob, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice_prekey = alice_store.prekeys[0];
-    alice_bundle = Proteus.keys.PreKeyBundle["new"](alice_ident.public_key, alice_prekey);
+    alice_bundle = Proteus.keys.PreKeyBundle.new(alice_ident.public_key, alice_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -373,17 +373,19 @@ describe('Session', function() {
     });
   });
   it('should handle simultaneous repeated messages', function(done) {
-    var alice, alice_bundle, alice_ident, alice_prekey, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, echo_alice1, echo_alice2, echo_bob1, echo_bob2, hello_alice, hello_bob, ref, ref1, stop_bob;
+    var alice, alice_bundle, alice_ident, alice_prekey, alice_store, bob, bob_bundle, bob_ident,
+        bob_prekey, bob_store, echo_alice1, echo_alice2, echo_bob1, echo_bob2, hello_alice,
+        hello_bob, ref, ref1, stop_bob;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice_prekey = alice_store.prekeys[0];
-    alice_bundle = Proteus.keys.PreKeyBundle["new"](alice_ident.public_key, alice_prekey);
+    alice_bundle = Proteus.keys.PreKeyBundle.new(alice_ident.public_key, alice_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -454,13 +456,13 @@ describe('Session', function() {
   it('should handle mass communication', function(done) {
     var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_bob, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -498,11 +500,11 @@ describe('Session', function() {
   it('should fail retry init from message', function(done) {
     var alice, alice_ident, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_bob, ref;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     bob_store = new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -517,7 +519,7 @@ describe('Session', function() {
       return Proteus.session.Session.init_from_message(bob_ident, bob_store, hello_bob);
     }).then(function() {
       return assert.fail('should have thrown Proteus.errors.ProteusError');
-    })["catch"](function(e) {
+    }).catch(function(e) {
       return assert.instanceOf(e, Proteus.errors.ProteusError);
     }).then((function() {
       return done();
@@ -532,12 +534,12 @@ describe('Session', function() {
     alices = null;
     bob = null;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     bob_store = new TestStore(Proteus.keys.PreKey.generate_prekeys(0, num_alices));
     return Promise.all(bob_store.prekeys.map(function(pk) {
       var bundle;
-      bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, pk);
+      bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, pk);
       return Proteus.session.Session.init_from_prekey(alice_ident, bundle);
     })).then(function(s) {
       alices = s;
@@ -577,15 +579,16 @@ describe('Session', function() {
     });
   });
   it('skipped message keys', function(done) {
-    var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store, hello_again0, hello_again1, hello_alice0, hello_alice2, hello_bob, hello_bob0, ref, ref1;
+    var alice, alice_ident, alice_store, bob, bob_bundle, bob_ident, bob_prekey, bob_store,
+        hello_again0, hello_again1, hello_alice0, hello_alice2, hello_bob, hello_bob0, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10));
     }), alice_store = ref1[0], bob_store = ref1[1];
     bob_prekey = bob_store.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob = null;
@@ -693,15 +696,16 @@ describe('Session', function() {
     });
   });
   it('replaced prekeys', function(done) {
-    var alice, alice_ident, bob, bob_bundle, bob_ident, bob_prekey, bob_store1, bob_store2, hello_bob1, hello_bob2, hello_bob3, ref, ref1;
+    var alice, alice_ident, bob, bob_bundle, bob_ident, bob_prekey, bob_store1, bob_store2,
+        hello_bob1, hello_bob2, hello_bob3, ref, ref1;
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     ref1 = [0, 1, 2].map(function() {
       return new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 1));
     }), bob_store1 = ref1[0], bob_store2 = ref1[1];
     bob_prekey = bob_store1.prekeys[0];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     hello_bob1 = null;
@@ -736,13 +740,13 @@ describe('Session', function() {
     var alice, alice_ident, bob, bob_bundle, bob_ident, bob_prekey, bob_store, keys, ref;
     this.timeout(0);
     ref = [0, 1].map(function() {
-      return Proteus.keys.IdentityKeyPair["new"]();
+      return Proteus.keys.IdentityKeyPair.new();
     }), alice_ident = ref[0], bob_ident = ref[1];
     keys = [];
     keys[Proteus.keys.PreKey.MAX_PREKEY_ID] = Proteus.keys.PreKey.last_resort();
     bob_store = new TestStore(keys);
     bob_prekey = bob_store.prekeys[Proteus.keys.PreKey.MAX_PREKEY_ID];
-    bob_bundle = Proteus.keys.PreKeyBundle["new"](bob_ident.public_key, bob_prekey);
+    bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
     alice = null;
     bob = null;
     return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle).then(function(s) {

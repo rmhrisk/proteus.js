@@ -22,11 +22,8 @@
 var CBOR, CipherMessage, DecodeError, DontCallConstructor, Message, PreKeyMessage, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 TypeUtil = require('../util/TypeUtil');
-
 DecodeError = require('../errors/DecodeError');
 
 module.exports = Message = (function() {

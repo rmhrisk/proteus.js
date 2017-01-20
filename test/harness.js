@@ -1,4 +1,4 @@
-process.env['NODE_PATH'] = './src';
+process.env.NODE_PATH = './src';
 require('module').Module._initPaths();
 
 assert = require('chai').assert;

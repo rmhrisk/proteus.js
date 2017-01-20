@@ -22,8 +22,8 @@ module.exports = DerivedSecrets = (function() {
     cipher_key = new Uint8Array(okm.buffer.slice(0, 32));
     mac_key = new Uint8Array(okm.buffer.slice(32, 64));
     ds = ClassUtil.new_instance(DerivedSecrets);
-    ds.cipher_key = CipherKey["new"](cipher_key);
-    ds.mac_key = MacKey["new"](mac_key);
+    ds.cipher_key = CipherKey.new(cipher_key);
+    ds.mac_key = MacKey.new(mac_key);
     return ds;
   };
 

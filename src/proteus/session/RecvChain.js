@@ -19,28 +19,19 @@
 
 'use strict';
 
-var CBOR, ChainKey, CipherMessage, ClassUtil, DecryptError, DontCallConstructor, Envelope, MessageKeys, ProteusError, PublicKey, RecvChain, TypeUtil;
+var CBOR, ChainKey, CipherMessage, ClassUtil, DecryptError, DontCallConstructor, Envelope,
+    MessageKeys, ProteusError, PublicKey, RecvChain, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('../keys/PublicKey');
-
 ProteusError = require('../errors/ProteusError');
-
 DecryptError = require('../errors/DecryptError');
-
 Envelope = require('../message/Envelope');
-
 CipherMessage = require('../message/CipherMessage');
-
 MessageKeys = require('./MessageKeys');
-
 ChainKey = require('./ChainKey');
 
 module.exports = RecvChain = (function() {
@@ -50,7 +41,7 @@ module.exports = RecvChain = (function() {
     throw new DontCallConstructor(this);
   }
 
-  RecvChain["new"] = function(chain_key, public_key) {
+  RecvChain.new = function(chain_key, public_key) {
     var rc;
     TypeUtil.assert_is_instance(ChainKey, chain_key);
     TypeUtil.assert_is_instance(PublicKey, public_key);

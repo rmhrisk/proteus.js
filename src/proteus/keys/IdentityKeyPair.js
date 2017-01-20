@@ -22,17 +22,11 @@
 var CBOR, ClassUtil, DontCallConstructor, IdentityKey, IdentityKeyPair, KeyPair, SecretKey, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 IdentityKey = require('./IdentityKey');
-
 SecretKey = require('./SecretKey');
-
 KeyPair = require('./KeyPair');
 
 module.exports = IdentityKeyPair = (function() {
@@ -40,13 +34,13 @@ module.exports = IdentityKeyPair = (function() {
     throw new DontCallConstructor(this);
   }
 
-  IdentityKeyPair["new"] = function() {
+  IdentityKeyPair.new = function() {
     var ikp, key_pair;
-    key_pair = KeyPair["new"]();
+    key_pair = KeyPair.new();
     ikp = ClassUtil.new_instance(IdentityKeyPair);
     ikp.version = 1;
     ikp.secret_key = key_pair.secret_key;
-    ikp.public_key = IdentityKey["new"](key_pair.public_key);
+    ikp.public_key = IdentityKey.new(key_pair.public_key);
     return ikp;
   };
 

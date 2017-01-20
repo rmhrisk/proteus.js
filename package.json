@@ -24,7 +24,7 @@
     "copy": "cpx 'src/**/*' dist/commonjs",
     "bundle": "npm run copy && webpack --progress",
     "prepublish": "npm run bundle && npm test",
-    "test": "mocha --compilers coffee:coffee-script/register -s 30000 -t 30000 --recursive test/harness.js test --trace-warnings"
+    "test": "mocha -s 30000 -t 30000 --recursive test/harness.js test --trace-warnings"
   },
   "typings": "dist/typings/proteus.d.ts",
   "version": "3.0.2"

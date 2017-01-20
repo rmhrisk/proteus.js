@@ -22,15 +22,10 @@
 var CBOR, ClassUtil, DontCallConstructor, Envelope, MacKey, Message, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 MacKey = require('../derived/MacKey');
-
 Message = require('./Message');
 
 module.exports = Envelope = (function() {
@@ -38,7 +33,7 @@ module.exports = Envelope = (function() {
     throw new DontCallConstructor(this);
   }
 
-  Envelope["new"] = function(mac_key, message) {
+  Envelope.new = function(mac_key, message) {
     var env, message_enc;
     TypeUtil.assert_is_instance(MacKey, mac_key);
     TypeUtil.assert_is_instance(Message, message);

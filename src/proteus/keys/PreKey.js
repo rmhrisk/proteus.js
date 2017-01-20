@@ -22,21 +22,15 @@
 var CBOR, ClassUtil, DontCallConstructor, KeyPair, PreKey, TypeUtil;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 KeyPair = require('./KeyPair');
-
 
 /*
  * Pre-generated (and regularly refreshed) pre-keys.
  * A Pre-Shared Key contains the public long-term identity and ephemeral handshake keys for the initial triple DH.
  */
-
 module.exports = PreKey = (function() {
   PreKey.MAX_PREKEY_ID = 0xFFFF;
 
@@ -44,26 +38,24 @@ module.exports = PreKey = (function() {
     throw new DontCallConstructor(this);
   }
 
-
   /*
    * @param pre_key_id [Integer]
    */
-
-  PreKey["new"] = function(pre_key_id) {
+  PreKey.new = function(pre_key_id) {
     var pk;
     TypeUtil.assert_is_integer(pre_key_id);
     if (pre_key_id < 0 || pre_key_id > PreKey.MAX_PREKEY_ID) {
-      throw new RangeError("Argument pre_key_id (" + pre_key_id + ") must be between 0 (inclusive) and " + PreKey.MAX_PREKEY_ID + " (inclusive).");
+      throw new RangeError('Argument pre_key_id (' + pre_key_id + ') must be between 0 (inclusive) and ' + PreKey.MAX_PREKEY_ID + ' (inclusive).');
     }
     pk = ClassUtil.new_instance(PreKey);
     pk.version = 1;
     pk.key_id = pre_key_id;
-    pk.key_pair = KeyPair["new"]();
+    pk.key_pair = KeyPair.new();
     return pk;
   };
 
   PreKey.last_resort = function() {
-    return PreKey["new"](PreKey.MAX_PREKEY_ID);
+    return PreKey.new(PreKey.MAX_PREKEY_ID);
   };
 
   PreKey.generate_prekeys = function(start, size) {
@@ -71,7 +63,7 @@ module.exports = PreKey = (function() {
     check_integer = function(value) {
       TypeUtil.assert_is_integer(value);
       if (value < 0 || value > PreKey.MAX_PREKEY_ID) {
-        throw new RangeError("Arguments must be between 0 (inclusive) and " + PreKey.MAX_PREKEY_ID + " (inclusive).");
+        throw new RangeError('Arguments must be between 0 (inclusive) and ' + PreKey.MAX_PREKEY_ID + ' (inclusive).');
       }
     };
     check_integer(start);
@@ -84,7 +76,7 @@ module.exports = PreKey = (function() {
       for (var i = 0, ref = size - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--){ results.push(i); }
       return results;
     }).apply(this).map(function(x) {
-      return PreKey["new"]((start + x) % PreKey.MAX_PREKEY_ID);
+      return PreKey.new((start + x) % PreKey.MAX_PREKEY_ID);
     });
   };
 

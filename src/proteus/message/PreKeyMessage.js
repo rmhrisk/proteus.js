@@ -19,22 +19,17 @@
 
 'use strict';
 
-var CBOR, CipherMessage, ClassUtil, DontCallConstructor, IdentityKey, Message, PreKeyMessage, PublicKey, TypeUtil,
+var CBOR, CipherMessage, ClassUtil, DontCallConstructor, IdentityKey, Message, PreKeyMessage,
+    PublicKey, TypeUtil,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('../keys/PublicKey');
-
 IdentityKey = require('../keys/IdentityKey');
-
 Message = require('./Message');
 
 CipherMessage = require('./CipherMessage');
@@ -46,7 +41,7 @@ module.exports = PreKeyMessage = (function(superClass) {
     throw new DontCallConstructor(this);
   }
 
-  PreKeyMessage["new"] = function(prekey_id, base_key, identity_key, message) {
+  PreKeyMessage.new = function(prekey_id, base_key, identity_key, message) {
     var pkm;
     TypeUtil.assert_is_integer(prekey_id);
     TypeUtil.assert_is_instance(PublicKey, base_key);
@@ -101,7 +96,7 @@ module.exports = PreKeyMessage = (function(superClass) {
     }
 
     // checks for missing variables happens in constructor
-    return PreKeyMessage["new"](prekey_id, base_key, identity_key, message);
+    return PreKeyMessage.new(prekey_id, base_key, identity_key, message);
   };
 
   return PreKeyMessage;

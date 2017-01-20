@@ -22,17 +22,11 @@
 var CBOR, ClassUtil, DontCallConstructor, PublicKey, SecretKey, TypeUtil, ed2curve, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 ed2curve = require('ed2curve');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('./PublicKey');
 
 module.exports = SecretKey = (function() {
@@ -40,7 +34,7 @@ module.exports = SecretKey = (function() {
     throw new DontCallConstructor(this);
   }
 
-  SecretKey["new"] = function(sec_edward, sec_curve) {
+  SecretKey.new = function(sec_edward, sec_curve) {
     var sk;
     TypeUtil.assert_is_instance(Uint8Array, sec_edward);
     TypeUtil.assert_is_instance(Uint8Array, sec_curve);
@@ -62,7 +56,6 @@ module.exports = SecretKey = (function() {
     return sodium.crypto_sign_detached(message, this.sec_edward);
   };
 
-
   /*
    * This function can be used to compute a shared secret given a user's secret key and another
    * user's public key.
@@ -70,7 +63,6 @@ module.exports = SecretKey = (function() {
    * @param public_key [Proteus.keys.PublicKey] Another user's public key
    * @return [Uint8Array] Array buffer view of the computed shared secret
    */
-
   SecretKey.prototype.shared_secret = function(public_key) {
     TypeUtil.assert_is_instance(PublicKey, public_key);
     return sodium.crypto_scalarmult(this.sec_curve, public_key.pub_curve);

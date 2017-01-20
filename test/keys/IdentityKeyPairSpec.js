@@ -22,7 +22,7 @@
 describe('IdentityKeyPair', function() {
   return it('serialises and deserialises', function() {
     var ikp, ikp_bytes, ikp_deser;
-    ikp = Proteus.keys.IdentityKeyPair["new"]();
+    ikp = Proteus.keys.IdentityKeyPair.new();
     ikp_bytes = ikp.serialise();
     ikp_deser = Proteus.keys.IdentityKeyPair.deserialise(ikp_bytes);
     assert(ikp.public_key.fingerprint() === ikp_deser.public_key.fingerprint());

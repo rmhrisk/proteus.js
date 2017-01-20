@@ -24,17 +24,11 @@ var CBOR, CipherMessage, ClassUtil, DontCallConstructor, Message, PublicKey, Ses
   hasProp = {}.hasOwnProperty;
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('../keys/PublicKey');
-
 Message = require('./Message');
-
 SessionTag = require('./SessionTag');
 
 module.exports = CipherMessage = (function(superClass) {
@@ -44,7 +38,7 @@ module.exports = CipherMessage = (function(superClass) {
     throw new DontCallConstructor(this);
   }
 
-  CipherMessage["new"] = function(session_tag, counter, prev_counter, ratchet_key, cipher_text) {
+  CipherMessage.new = function(session_tag, counter, prev_counter, ratchet_key, cipher_text) {
     var cm;
     TypeUtil.assert_is_instance(SessionTag, session_tag);
     TypeUtil.assert_is_integer(counter);
@@ -105,7 +99,7 @@ module.exports = CipherMessage = (function(superClass) {
           d.skip();
       }
     }
-    return CipherMessage["new"](session_tag, counter, prev_counter, ratchet_key, cipher_text);
+    return CipherMessage.new(session_tag, counter, prev_counter, ratchet_key, cipher_text);
   };
 
   return CipherMessage;

@@ -22,17 +22,11 @@
 var CBOR, ClassUtil, DontCallConstructor, IdentityKey, PublicKey, TypeUtil, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 PublicKey = require('./PublicKey');
-
 
 /*
  * Construct a long-term identity key pair.
@@ -40,13 +34,12 @@ PublicKey = require('./PublicKey');
  * Every client has a long-term identity key pair.
  * Long-term identity keys are used to initialise “sessions” with other clients (triple DH).
  */
-
 module.exports = IdentityKey = (function() {
   function IdentityKey() {
     throw new DontCallConstructor(this);
   }
 
-  IdentityKey["new"] = function(public_key) {
+  IdentityKey.new = function(public_key) {
     var key;
     TypeUtil.assert_is_instance(PublicKey, public_key);
     key = ClassUtil.new_instance(IdentityKey);
@@ -82,7 +75,7 @@ module.exports = IdentityKey = (function() {
           d.skip();
       }
     }
-    return IdentityKey["new"](public_key);
+    return IdentityKey.new(public_key);
   };
 
   return IdentityKey;

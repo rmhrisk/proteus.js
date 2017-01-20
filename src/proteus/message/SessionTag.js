@@ -22,17 +22,11 @@
 var CBOR, ClassUtil, DecodeError, DontCallConstructor, RandomUtil, SessionTag, TypeUtil, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 DecodeError = require('../errors/DecodeError');
-
 RandomUtil = require('../util/RandomUtil');
 
 module.exports = SessionTag = (function() {
@@ -40,7 +34,7 @@ module.exports = SessionTag = (function() {
     throw new DontCallConstructor(this);
   }
 
-  SessionTag["new"] = function() {
+  SessionTag.new = function() {
     var st;
     st = ClassUtil.new_instance(SessionTag);
     st.tag = RandomUtil.random_bytes(16);
@@ -60,7 +54,7 @@ module.exports = SessionTag = (function() {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
     bytes = new Uint8Array(d.bytes());
     if (bytes.byteLength !== 16) {
-      throw DecodeError.InvalidArrayLen("SessionTag should be 16 bytes, not " + bytes.byteLength + " bytes.");
+      throw DecodeError.InvalidArrayLen('SessionTag should be 16 bytes, not ' + bytes.byteLength + ' bytes.');
     }
     st = ClassUtil.new_instance(SessionTag);
     st.tag = new Uint8Array(bytes);

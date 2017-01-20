@@ -15,7 +15,7 @@ module.exports = CipherKey = (function() {
     throw new DontCallConstructor(this);
   }
 
-  CipherKey["new"] = function(key) {
+  CipherKey.new = function(key) {
     var ck;
     TypeUtil.assert_is_instance(Uint8Array, key);
     ck = ClassUtil.new_instance(CipherKey);
@@ -63,7 +63,7 @@ module.exports = CipherKey = (function() {
           d.skip();
       }
     }
-    return CipherKey["new"](key_bytes);
+    return CipherKey.new(key_bytes);
   };
 
   return CipherKey;

@@ -22,23 +22,14 @@
 var CBOR, ClassUtil, DontCallConstructor, IdentityKey, IdentityKeyPair, PreKey, PreKeyAuth, PreKeyBundle, PublicKey, TypeUtil, sodium;
 
 CBOR = require('wire-webapp-cbor');
-
 sodium = require('libsodium');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 IdentityKeyPair = require('./IdentityKeyPair');
-
 IdentityKey = require('./IdentityKey');
-
 PreKeyAuth = require('./PreKeyAuth');
-
 PublicKey = require('./PublicKey');
-
 PreKey = require('./PreKey');
 
 module.exports = PreKeyBundle = (function() {
@@ -46,13 +37,11 @@ module.exports = PreKeyBundle = (function() {
     throw new DontCallConstructor(this);
   }
 
-
   /*
    * @param public_identity_key [Proteus.keys.IdentityKey]
    * @param prekey [Proteus.keys.PreKey]
    */
-
-  PreKeyBundle["new"] = function(public_identity_key, prekey) {
+  PreKeyBundle.new = function(public_identity_key, prekey) {
     var bundle;
     TypeUtil.assert_is_instance(IdentityKey, public_identity_key);
     TypeUtil.assert_is_instance(PreKey, prekey);
@@ -99,8 +88,8 @@ module.exports = PreKeyBundle = (function() {
 
   PreKeyBundle.prototype.serialised_json = function() {
     return {
-      "id": this.prekey_id,
-      "key": sodium.to_base64(new Uint8Array(this.serialise()), true)
+      'id': this.prekey_id,
+      'key': sodium.to_base64(new Uint8Array(this.serialise()), true)
     };
   };
 
@@ -122,7 +111,7 @@ module.exports = PreKeyBundle = (function() {
     this.identity_key.encode(e);
     e.u8(4);
     if (!this.signature) {
-      return e["null"]();
+      return e.null();
     } else {
       return e.bytes(this.signature);
     }

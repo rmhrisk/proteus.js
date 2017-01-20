@@ -19,44 +19,29 @@
 
 'use strict';
 
-var CBOR, CipherMessage, ClassUtil, DecodeError, DecryptError, DontCallConstructor, Envelope, IdentityKey, IdentityKeyPair, KeyPair, PreKey, PreKeyBundle, PreKeyMessage, PreKeyStore, ProteusError, PublicKey, Session, SessionState, SessionTag, TypeUtil,
+var CBOR, CipherMessage, ClassUtil, DecodeError, DecryptError, DontCallConstructor, Envelope,
+    IdentityKey, IdentityKeyPair, KeyPair, PreKey, PreKeyBundle, PreKeyMessage, PreKeyStore,
+    ProteusError, PublicKey, Session, SessionState, SessionTag, TypeUtil,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 CBOR = require('wire-webapp-cbor');
-
 DontCallConstructor = require('../errors/DontCallConstructor');
-
 ClassUtil = require('../util/ClassUtil');
-
 TypeUtil = require('../util/TypeUtil');
-
 ProteusError = require('../errors/ProteusError');
-
 DecryptError = require('../errors/DecryptError');
-
 DecodeError = require('../errors/DecodeError');
-
 IdentityKeyPair = require('../keys/IdentityKeyPair');
-
 IdentityKey = require('../keys/IdentityKey');
-
 PreKeyBundle = require('../keys/PreKeyBundle');
-
 PublicKey = require('../keys/PublicKey');
-
 KeyPair = require('../keys/KeyPair');
-
 PreKey = require('../keys/PreKey');
-
 Envelope = require('../message/Envelope');
-
 CipherMessage = require('../message/CipherMessage');
-
 PreKeyMessage = require('../message/PreKeyMessage');
-
 SessionTag = require('../message/SessionTag');
-
 PreKeyStore = require('./PreKeyStore');
 
 module.exports = Session = (function() {
@@ -88,9 +73,9 @@ module.exports = Session = (function() {
         var alice_base, session, session_tag, state;
         TypeUtil.assert_is_instance(IdentityKeyPair, local_identity);
         TypeUtil.assert_is_instance(PreKeyBundle, remote_pkbundle);
-        alice_base = KeyPair["new"]();
+        alice_base = KeyPair.new();
         state = SessionState.init_as_alice(local_identity, alice_base, remote_pkbundle);
-        session_tag = SessionTag["new"]();
+        session_tag = SessionTag.new();
         session = ClassUtil.new_instance(Session);
         session.session_tag = session_tag;
         session.local_identity = local_identity;
@@ -134,13 +119,13 @@ module.exports = Session = (function() {
           if (pkmsg.prekey_id < PreKey.MAX_PREKEY_ID) {
             return prekey_store.remove(pkmsg.prekey_id).then(function() {
               return resolve([session, plain]);
-            })["catch"](function(error) {
-              return reject(new DecryptError.PrekeyNotFound("Could not delete PreKey: " + error.message));
+            }).catch(function(error) {
+              return reject(new DecryptError.PrekeyNotFound('Could not delete PreKey: ' + error.message));
             });
           } else {
             return resolve([session, plain]);
           }
-        })["catch"](reject);
+        }).catch(reject);
       };
     })(this));
   };
@@ -267,7 +252,7 @@ module.exports = Session = (function() {
       return function() {
         return _this._decrypt_cipher_message(envelope, msg.message);
       };
-    })(this))["catch"]((function(_this) {
+    })(this)).catch((function(_this) {
       return function(error) {
         if (error instanceof DecryptError.InvalidSignature || error instanceof DecryptError.InvalidMessage) {
           return _this._new_state(prekey_store, msg).then(function(state) {
@@ -290,7 +275,8 @@ module.exports = Session = (function() {
     var plaintext, ref, state;
     state = this.session_states[msg.session_tag];
     if (!state) {
-      throw new DecryptError.InvalidMessage("We received a message with session tag '" + ((ref = msg.session_tag) != null ? ref.toString() : void 0) + "', but we don't have a session for this tag.");
+      throw new DecryptError.InvalidMessage("We received a message with session tag '" +
+        ((ref = msg.session_tag) != null ? ref.toString() : void 0) + "', but we don't have a session for this tag.");
     }
 
     // serialise and de-serialise for a deep clone
@@ -337,7 +323,7 @@ module.exports = Session = (function() {
       e.u8(1);
       this.pending_prekey[1].encode(e);
     } else {
-      e["null"]();
+      e.null();
     }
     e.u8(5);
     e.object(Object.keys(this.session_states).length);

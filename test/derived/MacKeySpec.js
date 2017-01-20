@@ -24,10 +24,12 @@ describe('Mac Key', function() {
     var authentication_code, expected, key_material_buffer, mac_key, message, typed_key_material;
     key_material_buffer = new ArrayBuffer(32);
     typed_key_material = new Uint8Array(key_material_buffer);
-    mac_key = Proteus.derived.MacKey["new"](typed_key_material);
+    mac_key = Proteus.derived.MacKey.new(typed_key_material);
     message = sodium.from_string('hello');
     authentication_code = mac_key.sign(message);
-    expected = new Uint8Array([67, 82, 178, 110, 51, 254, 13, 118, 154, 137, 34, 166, 186, 41, 0, 65, 9, 240, 22, 136, 226, 106, 204, 158, 108, 179, 71, 229, 165, 175, 196, 218]);
+    expected = new Uint8Array([67, 82, 178, 110, 51, 254, 13, 118, 154, 137, 34, 166, 186, 41, 0,
+                               65, 9, 240, 22, 136, 226, 106, 204, 158, 108, 179, 71, 229, 165, 175,
+                               196, 218]);
     return assert.deepEqual(authentication_code, expected);
   });
 });
