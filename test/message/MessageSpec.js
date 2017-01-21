@@ -19,49 +19,59 @@
 
 'use strict';
 
-describe('Message', function() {
-  var bk, fake_pubkey, ik, rk, st;
-  fake_pubkey = function(byte) {
-    var pub_curve, pub_edward;
-    pub_edward = new Uint8Array(32);
+describe('Message', () => {
+  const fake_pubkey = (byte) => {
+    const pub_edward = new Uint8Array(32);
     pub_edward.fill(byte);
-    pub_curve = sodium.crypto_sign_ed25519_pk_to_curve25519(pub_edward);
+    const pub_curve = sodium.crypto_sign_ed25519_pk_to_curve25519(pub_edward);
+
     return Proteus.keys.PublicKey.new(pub_edward, pub_curve);
   };
-  bk = fake_pubkey(0xFF);
-  ik = Proteus.keys.IdentityKey.new(fake_pubkey(0xA0));
-  rk = fake_pubkey(0xF0);
-  st = Proteus.message.SessionTag.new();
+
+  const bk = fake_pubkey(0xFF);
+  const ik = Proteus.keys.IdentityKey.new(fake_pubkey(0xA0));
+  const rk = fake_pubkey(0xF0);
+
+  const st = Proteus.message.SessionTag.new();
   st.tag.fill(42);
-  it('should serialise and deserialise a CipherMessage correctly', function() {
-    var bytes, deserialised, expected, msg;
-    expected = '01a500502a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a010c020d03a1005820f0f0f0f0f0f0f0f0f0f0f0f' +
-               '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0044a0102030405060708090a';
-    msg = Proteus.message.CipherMessage.new(
-      st, 12, 13, rk, new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    ));
-    bytes = new Uint8Array(msg.serialise());
+
+  it('should serialise and deserialise a CipherMessage correctly', () => {
+    const expected = '01a500502a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a010c020d03a1005820f0f0f0f0f0f0f0f0f' +
+                     '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0044a0102030405060708090a';
+
+    const msg = Proteus.message.CipherMessage.new(
+      st, 12, 13, rk, new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    );
+
+    const bytes = new Uint8Array(msg.serialise());
     assert(expected === sodium.to_hex(bytes).toLowerCase());
-    deserialised = Proteus.message.Message.deserialise(bytes.buffer);
+
+    const deserialised = Proteus.message.Message.deserialise(bytes.buffer);
     assert(deserialised.constructor === Proteus.message.CipherMessage);
     return assert(deserialised.ratchet_key.fingerprint() === rk.fingerprint());
   });
-  return it('should serialise a PreKeyMessage correctly', function() {
-    var bytes, cmsg, deserialised, expected, pkmsg;
-    expected = '02a400181801a1005820fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff' +
-               'fff02a100a1005820a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0' +
-               '03a500502a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a010c020d03a1005820f0f0f0f0f0f0f0f0f0f0f0f' +
-               '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0044a0102030405060708090a';
-    cmsg = Proteus.message.CipherMessage.new(
+
+  it('should serialise a PreKeyMessage correctly', () => {
+    const expected = '02a400181801a1005820fffffffffffffffffffffffffffffffffffffffffffffffffffffff' +
+                     'fffffffff02a100a1005820a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0' +
+                     'a0a0a0a0a0a003a500502a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a010c020d03a1005820f0f0f' +
+                     '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0044a010203040506' +
+                     '0708090a';
+
+    const cmsg = Proteus.message.CipherMessage.new(
       st, 12, 13, rk, new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     );
-    pkmsg = Proteus.message.PreKeyMessage.new(24, bk, ik, cmsg);
-    bytes = new Uint8Array(pkmsg.serialise());
+    const pkmsg = Proteus.message.PreKeyMessage.new(24, bk, ik, cmsg);
+
+    const bytes = new Uint8Array(pkmsg.serialise());
     assert(expected === sodium.to_hex(bytes).toLowerCase());
-    deserialised = Proteus.message.Message.deserialise(bytes.buffer);
+
+    const deserialised = Proteus.message.Message.deserialise(bytes.buffer);
     assert(deserialised.constructor === Proteus.message.PreKeyMessage);
+
     assert(deserialised.base_key.fingerprint() === bk.fingerprint());
     assert(deserialised.identity_key.fingerprint() === ik.fingerprint());
+
     return assert(deserialised.message.ratchet_key.fingerprint() === rk.fingerprint());
   });
 });
