@@ -19,29 +19,27 @@
 
 'use strict';
 
-module.exports = (function() {
-  var crypto;
-  crypto = (typeof window !== 'undefined') && (window.crypto || window.msCrypto);
+module.exports = (() => {
+  let crypto = (typeof window !== 'undefined') && (window.crypto || window.msCrypto);
   if (crypto) {
-
     // browser
-    return (function() {
+
+    return (() => {
       return {
-        random_bytes: function(len) {
-          var buffer, buffer_view;
-          buffer = new ArrayBuffer(len);
-          buffer_view = new Uint8Array(buffer);
+        random_bytes (len) {
+          const buffer = new ArrayBuffer(len);
+          const buffer_view = new Uint8Array(buffer);
           return crypto.getRandomValues(buffer_view);
         }
       };
     })();
   } else {
-
     // node
     crypto = require('crypto');
-    return (function() {
+
+    return (() => {
       return {
-        random_bytes: function(len) {
+        random_bytes (len) {
           return new Uint8Array(crypto.randomBytes(len));
         }
       };

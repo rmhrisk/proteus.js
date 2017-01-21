@@ -19,17 +19,13 @@
 
 'use strict';
 
-var ArrayUtil, TypeUtil, sodium;
+const sodium = require('libsodium');
 
-sodium = require('libsodium');
+const TypeUtil = require('../util/TypeUtil');
+const ArrayUtil = require('../util/ArrayUtil');
 
-TypeUtil = require('../util/TypeUtil');
-
-ArrayUtil = require('../util/ArrayUtil');
-
-module.exports = (function() {
+module.exports = (() => {
   return {
-
     /*
      * HMAC-based Key Derivation Function
      *
@@ -40,9 +36,8 @@ module.exports = (function() {
      *
      * @return [Uint8Array] Output Keying Material (OKM)
      */
-    hkdf: function(salt, input, info, length) {
-      var HASH_LEN, convert_type, expand, extract, key, salt_to_key;
-      convert_type = function(value) {
+    hkdf (salt, input, info, length) {
+      const convert_type = (value) => {
         if (typeof value === 'string') {
           return sodium.from_string(value);
         }
@@ -52,34 +47,41 @@ module.exports = (function() {
       salt = convert_type(salt);
       input = convert_type(input);
       info = convert_type(info);
+
       TypeUtil.assert_is_integer(length);
-      HASH_LEN = 32;
-      salt_to_key = function(salt) {
-        var key, keybytes;
-        keybytes = sodium.crypto_auth_hmacsha256_KEYBYTES;
+
+      const HASH_LEN = 32;
+
+      const salt_to_key = (salt) => {
+        const keybytes = sodium.crypto_auth_hmacsha256_KEYBYTES;
         if (salt.length > keybytes) {
           return sodium.crypto_hash_sha256(salt);
         }
-        key = new Uint8Array(keybytes);
+
+        const key = new Uint8Array(keybytes);
         key.set(salt);
         return key;
       };
-      extract = function(salt, input) {
+
+      const extract = (salt, input) => {
         return sodium.crypto_auth_hmacsha256(input, salt_to_key(salt));
       };
-      expand = function(tag, info, length) {
-        var buf, hmac, i, j, num_blocks, ref, result;
-        num_blocks = Math.ceil(length / HASH_LEN);
-        hmac = new Uint8Array(0);
-        result = new Uint8Array(0);
-        for (i = j = 0, ref = num_blocks - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-          buf = ArrayUtil.concatenate_array_buffers([hmac, info, new Uint8Array([i + 1])]);
+
+      const expand = (tag, info, length) => {
+        let num_blocks = Math.ceil(length / HASH_LEN);
+        let hmac = new Uint8Array(0);
+        let result = new Uint8Array(0);
+
+        for (let i = 0; i <= num_blocks - 1; i++) {
+          const buf = ArrayUtil.concatenate_array_buffers([hmac, info, new Uint8Array([i + 1])]);
           hmac = sodium.crypto_auth_hmacsha256(buf, tag);
           result = ArrayUtil.concatenate_array_buffers([result, hmac]);
         }
+
         return new Uint8Array(result.buffer.slice(0, length));
       };
-      key = extract(salt, input);
+
+      const key = extract(salt, input);
       return expand(key, info, length);
     }
   };

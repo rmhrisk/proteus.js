@@ -19,18 +19,15 @@
 
 'use strict';
 
-var DontCallConstructor;
+const DontCallConstructor = require('../errors/DontCallConstructor');
 
-DontCallConstructor = require('../errors/DontCallConstructor');
-
-module.exports = (function() {
+module.exports = (() => {
   return {
-    new_instance: function(klass) {
+    new_instance (klass) {
       var e;
       try {
-        return new klass;
-      } catch (error) {
-        e = error;
+        return new klass();
+      } catch (e) {
         if (!(e instanceof DontCallConstructor)) {
           throw e;
         }
