@@ -19,39 +19,37 @@
 
 'use strict';
 
-var CBOR, CipherMessage, DecodeError, DontCallConstructor, Message, PreKeyMessage, TypeUtil;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-DontCallConstructor = require('../errors/DontCallConstructor');
-TypeUtil = require('../util/TypeUtil');
-DecodeError = require('../errors/DecodeError');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const TypeUtil = require('../util/TypeUtil');
 
-module.exports = Message = (function() {
-  function Message() {
+const DecodeError = require('../errors/DecodeError');
+
+module.exports = class Message {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  Message.prototype.serialise = function() {
-    var e;
-    e = new CBOR.Encoder();
-    switch (false) {
-      case !(this instanceof CipherMessage):
-        e.u8(1);
-        break;
-      case !(this instanceof PreKeyMessage):
-        e.u8(2);
-        break;
-      default:
-        throw new TypeError('Unexpected message type');
+  serialise () {
+    const e = new CBOR.Encoder();
+    if (this instanceof CipherMessage) {
+      e.u8(1);
+    } else if (this instanceof PreKeyMessage) {
+      e.u8(2);
+    } else {
+      throw new TypeError('Unexpected message type');
     }
+
     this.encode(e);
     return e.get_buffer();
-  };
+  }
 
-  Message.deserialise = function(buf) {
-    var d;
+  static deserialise (buf) {
     TypeUtil.assert_is_instance(ArrayBuffer, buf);
-    d = new CBOR.Decoder(buf);
+
+    const d = new CBOR.Decoder(buf);
+
     switch (d.u8()) {
       case 1:
         return CipherMessage.decode(d);
@@ -60,16 +58,10 @@ module.exports = Message = (function() {
       default:
         throw new DecodeError.InvalidType('Unrecognised message type');
     }
-  };
-
-  return Message;
-
-})();
-
+  }
+};
 
 // these require lines have to come after the Message definition because otherwise
 // it creates a circular dependency with the message subtypes
-
-CipherMessage = require('./CipherMessage');
-
-PreKeyMessage = require('./PreKeyMessage');
+const CipherMessage = require('./CipherMessage');
+const PreKeyMessage = require('./PreKeyMessage');

@@ -19,43 +19,44 @@
 
 'use strict';
 
-var CBOR, CipherMessage, ClassUtil, DontCallConstructor, Message, PublicKey, SessionTag, TypeUtil,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-PublicKey = require('../keys/PublicKey');
-Message = require('./Message');
-SessionTag = require('./SessionTag');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-module.exports = CipherMessage = (function(superClass) {
-  extend(CipherMessage, superClass);
+const PublicKey = require('../keys/PublicKey');
 
-  function CipherMessage() {
+const Message = require('./Message');
+const SessionTag = require('./SessionTag');
+
+module.exports = class CipherMessage extends Message {
+
+  constructor () {
+    super();
     throw new DontCallConstructor(this);
   }
 
-  CipherMessage.new = function(session_tag, counter, prev_counter, ratchet_key, cipher_text) {
-    var cm;
+  static new (session_tag, counter, prev_counter, ratchet_key, cipher_text) {
     TypeUtil.assert_is_instance(SessionTag, session_tag);
     TypeUtil.assert_is_integer(counter);
     TypeUtil.assert_is_integer(prev_counter);
     TypeUtil.assert_is_instance(PublicKey, ratchet_key);
     TypeUtil.assert_is_instance(Uint8Array, cipher_text);
-    cm = ClassUtil.new_instance(CipherMessage);
+
+    const cm = ClassUtil.new_instance(CipherMessage);
+
     cm.session_tag = session_tag;
     cm.counter = counter;
     cm.prev_counter = prev_counter;
     cm.ratchet_key = ratchet_key;
     cm.cipher_text = cipher_text;
+
     Object.freeze(cm);
     return cm;
-  };
+  }
 
-  CipherMessage.prototype.encode = function(e) {
+  encode (e) {
     e.object(5);
     e.u8(0);
     this.session_tag.encode(e);
@@ -67,17 +68,18 @@ module.exports = CipherMessage = (function(superClass) {
     this.ratchet_key.encode(e);
     e.u8(4);
     return e.bytes(this.cipher_text);
-  };
+  }
 
-  CipherMessage.decode = function(d) {
-    var cipher_text, counter, i, nprops, prev_counter, ratchet_key, ref, session_tag;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    session_tag = null;
-    counter = null;
-    prev_counter = null;
-    ratchet_key = null;
-    cipher_text = null;
-    nprops = d.object();
+
+    let session_tag = null;
+    let counter = null;
+    let prev_counter = null;
+    let ratchet_key = null;
+    let cipher_text = null;
+
+    const nprops = d.object();
     for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
@@ -99,9 +101,7 @@ module.exports = CipherMessage = (function(superClass) {
           d.skip();
       }
     }
+
     return CipherMessage.new(session_tag, counter, prev_counter, ratchet_key, cipher_text);
-  };
-
-  return CipherMessage;
-
-})(Message);
+  }
+};

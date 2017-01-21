@@ -19,48 +19,48 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DecodeError, DontCallConstructor, RandomUtil, SessionTag, TypeUtil, sodium;
+const CBOR = require('wire-webapp-cbor');
+const sodium = require('libsodium');
 
-CBOR = require('wire-webapp-cbor');
-sodium = require('libsodium');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-DecodeError = require('../errors/DecodeError');
-RandomUtil = require('../util/RandomUtil');
+const DontCallConstructor = require('../errors/DontCallConstructor');
 
-module.exports = SessionTag = (function() {
-  function SessionTag() {
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
+
+const DecodeError = require('../errors/DecodeError');
+const RandomUtil = require('../util/RandomUtil');
+
+module.exports = class SessionTag {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  SessionTag.new = function() {
-    var st;
-    st = ClassUtil.new_instance(SessionTag);
+  static new () {
+    const st = ClassUtil.new_instance(SessionTag);
     st.tag = RandomUtil.random_bytes(16);
     return st;
-  };
+  }
 
-  SessionTag.prototype.toString = function() {
+  toString () {
     return sodium.to_hex(this.tag);
-  };
+  }
 
-  SessionTag.prototype.encode = function(e) {
+  encode (e) {
     return e.bytes(this.tag);
-  };
+  }
 
-  SessionTag.decode = function(d) {
-    var bytes, st;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    bytes = new Uint8Array(d.bytes());
+
+    const bytes = new Uint8Array(d.bytes());
     if (bytes.byteLength !== 16) {
-      throw DecodeError.InvalidArrayLen('SessionTag should be 16 bytes, not ' + bytes.byteLength + ' bytes.');
+      throw DecodeError.InvalidArrayLen(
+        `SessionTag should be 16 bytes, not ${bytes.byteLength} bytes.`
+      );
     }
-    st = ClassUtil.new_instance(SessionTag);
+
+    const st = ClassUtil.new_instance(SessionTag);
     st.tag = new Uint8Array(bytes);
     return st;
-  };
-
-  return SessionTag;
-
-})();
+  }
+};

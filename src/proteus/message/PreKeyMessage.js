@@ -19,44 +19,42 @@
 
 'use strict';
 
-var CBOR, CipherMessage, ClassUtil, DontCallConstructor, IdentityKey, Message, PreKeyMessage,
-    PublicKey, TypeUtil,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-PublicKey = require('../keys/PublicKey');
-IdentityKey = require('../keys/IdentityKey');
-Message = require('./Message');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-CipherMessage = require('./CipherMessage');
+const PublicKey = require('../keys/PublicKey');
+const IdentityKey = require('../keys/IdentityKey');
 
-module.exports = PreKeyMessage = (function(superClass) {
-  extend(PreKeyMessage, superClass);
+const Message = require('./Message');
+const CipherMessage = require('./CipherMessage');
 
-  function PreKeyMessage() {
+module.exports = class PreKeyMessage extends Message {
+  constructor () {
+    super();
     throw new DontCallConstructor(this);
   }
 
-  PreKeyMessage.new = function(prekey_id, base_key, identity_key, message) {
-    var pkm;
+  static new (prekey_id, base_key, identity_key, message) {
     TypeUtil.assert_is_integer(prekey_id);
     TypeUtil.assert_is_instance(PublicKey, base_key);
     TypeUtil.assert_is_instance(IdentityKey, identity_key);
     TypeUtil.assert_is_instance(CipherMessage, message);
-    pkm = ClassUtil.new_instance(PreKeyMessage);
+
+    const pkm = ClassUtil.new_instance(PreKeyMessage);
+
     pkm.prekey_id = prekey_id;
     pkm.base_key = base_key;
     pkm.identity_key = identity_key;
     pkm.message = message;
+
     Object.freeze(pkm);
     return pkm;
-  };
+  }
 
-  PreKeyMessage.prototype.encode = function(e) {
+  encode (e) {
     e.object(4);
     e.u8(0);
     e.u16(this.prekey_id);
@@ -66,17 +64,18 @@ module.exports = PreKeyMessage = (function(superClass) {
     this.identity_key.encode(e);
     e.u8(3);
     return this.message.encode(e);
-  };
+  }
 
-  PreKeyMessage.decode = function(d) {
-    var base_key, i, identity_key, message, nprops, prekey_id, ref;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    prekey_id = null;
-    base_key = null;
-    identity_key = null;
-    message = null;
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    let prekey_id = null;
+    let base_key = null;
+    let identity_key = null;
+    let message = null;
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           prekey_id = d.u16();
@@ -97,8 +96,5 @@ module.exports = PreKeyMessage = (function(superClass) {
 
     // checks for missing variables happens in constructor
     return PreKeyMessage.new(prekey_id, base_key, identity_key, message);
-  };
-
-  return PreKeyMessage;
-
-})(Message);
+  }
+};
