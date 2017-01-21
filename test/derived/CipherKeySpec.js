@@ -19,9 +19,8 @@
 
 'use strict';
 
-describe('CipherKey sanity checks (IETF ChaCha20 test vectors)', function() {
-  var ietf_vectors;
-  ietf_vectors = [
+describe('CipherKey sanity checks (IETF ChaCha20 test vectors)', () => {
+  const ietf_vectors = [
     {
       k: '0000000000000000000000000000000000000000000000000000000000000000',
       n: '0000000000000000',
@@ -53,32 +52,31 @@ describe('CipherKey sanity checks (IETF ChaCha20 test vectors)', function() {
          'f7628fe4e'
     }
   ];
-  it('encrypts plaintext to ciphertext', function() {
-    var cipher_text, encrypt_plain_text, i, len, results, vector;
-    encrypt_plain_text = function(vector) {
-      var cipher_text, key, nonce, plaintext;
-      plaintext = new Uint8Array(vector.m.length >> 1);
-      nonce = sodium.from_hex(vector.n);
-      key = Proteus.derived.CipherKey.new(sodium.from_hex(vector.k));
-      cipher_text = key.encrypt(plaintext, nonce);
+
+  it('encrypts plaintext to ciphertext', () => {
+    const encrypt_plain_text = (vector) => {
+      const plaintext = new Uint8Array(vector.m.length >> 1);
+      const nonce = sodium.from_hex(vector.n);
+
+      const key = Proteus.derived.CipherKey.new(sodium.from_hex(vector.k));
+      const cipher_text = key.encrypt(plaintext, nonce);
+
       return cipher_text;
     };
-    results = [];
-    for (i = 0, len = ietf_vectors.length; i < len; i++) {
-      vector = ietf_vectors[i];
-      cipher_text = encrypt_plain_text(vector);
-      results.push(assert.deepEqual(sodium.to_hex(cipher_text), vector.m));
-    }
-    return results;
+
+    ietf_vectors.forEach((vector) => {
+      const cipher_text = encrypt_plain_text(vector);
+      assert.deepEqual(sodium.to_hex(cipher_text), vector.m);
+    });
   });
-  return it('decrypts ciphertext to plaintext', function() {
-    var decrypt_cipher_text, i, len, result, results, vector;
-    decrypt_cipher_text = function(vector) {
-      var ciphertext, key, nonce, plaintext;
-      plaintext = new Uint8Array(vector.m.length >> 1);
-      nonce = sodium.from_hex(vector.n);
-      key = Proteus.derived.CipherKey.new(sodium.from_hex(vector.k));
-      ciphertext = key.encrypt(plaintext, nonce);
+
+  it('decrypts ciphertext to plaintext', () => {
+    const decrypt_cipher_text = (vector) => {
+      const plaintext = new Uint8Array(vector.m.length >> 1);
+      const nonce = sodium.from_hex(vector.n);
+      const key = Proteus.derived.CipherKey.new(sodium.from_hex(vector.k));
+      const ciphertext = key.encrypt(plaintext, nonce);
+
       return {
         key: key,
         ciphertext: ciphertext,
@@ -86,13 +84,11 @@ describe('CipherKey sanity checks (IETF ChaCha20 test vectors)', function() {
         plaintext: plaintext
       };
     };
-    results = [];
-    for (i = 0, len = ietf_vectors.length; i < len; i++) {
-      vector = ietf_vectors[i];
-      result = decrypt_cipher_text(vector);
+    ietf_vectors.forEach((vector) => {
+      const result = decrypt_cipher_text(vector);
+
       assert(sodium.to_hex(result.ciphertext) === vector.m);
-      results.push(assert.deepEqual(result.key.decrypt(result.ciphertext, result.nonce), result.plaintext));
-    }
-    return results;
+      assert.deepEqual(result.key.decrypt(result.ciphertext, result.nonce), result.plaintext);
+    });
   });
 });
