@@ -32,12 +32,12 @@ const convert_arg_type = (x) => {
 };
 
 const run_hkdf_testcase = (v) => {
-  return it(v.case, () => {
+  it(v.case, () => {
     const a = [v.salt, v.ikm, v.info].map(convert_arg_type);
     let ref;
     // needs simplification
     const result = sodium.to_hex(
-      (ref = Proteus.util.KeyDerivationUtil).hkdf.apply(ref, [].slice.call(a).concat([v.length]))
+      Proteus.util.KeyDerivationUtil.hkdf(...a, v.length)
     );
     assert(result === v.okm);
     assert(result.length === (v.length * 2));

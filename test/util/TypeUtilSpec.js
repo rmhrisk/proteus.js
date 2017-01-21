@@ -24,6 +24,7 @@ describe('TypeUtil', () => {
     Proteus.util.TypeUtil.assert_is_instance(Array, []);
     return assert.throws(() => Proteus.util.TypeUtil.assert_is_instance(Array, {}));
   });
+
   it('should check multiple types', () => {
     Proteus.util.TypeUtil.assert_is_instance([Array, String], []);
     return assert.throws(() => Proteus.util.TypeUtil.assert_is_instance([Array, String], {}));
