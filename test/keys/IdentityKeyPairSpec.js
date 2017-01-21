@@ -19,13 +19,16 @@
 
 'use strict';
 
-describe('IdentityKeyPair', function() {
-  return it('serialises and deserialises', function() {
-    var ikp, ikp_bytes, ikp_deser;
-    ikp = Proteus.keys.IdentityKeyPair.new();
-    ikp_bytes = ikp.serialise();
-    ikp_deser = Proteus.keys.IdentityKeyPair.deserialise(ikp_bytes);
+describe('IdentityKeyPair', () => {
+  it('serialises and deserialises', () => {
+    const ikp = Proteus.keys.IdentityKeyPair.new();
+
+    const ikp_bytes = ikp.serialise();
+    const ikp_deser = Proteus.keys.IdentityKeyPair.deserialise(ikp_bytes);
+
     assert(ikp.public_key.fingerprint() === ikp_deser.public_key.fingerprint());
-    return assert(sodium.to_hex(new Uint8Array(ikp_bytes)) === sodium.to_hex(new Uint8Array(ikp_deser.serialise())));
+    assert(
+      sodium.to_hex(new Uint8Array(ikp_bytes)) === sodium.to_hex(new Uint8Array(ikp_deser.serialise()))
+    );
   });
 });

@@ -19,50 +19,43 @@
 
 'use strict';
 
-describe('PreKey', function() {
-  describe('Generation', function() {
-    it('should generate new PreKeys', function() {
-      var pk;
-      pk = Proteus.keys.PreKey.new(0);
+describe('PreKey', () => {
+  describe('Generation', () => {
+    it('should generate new PreKeys', () => {
+      let pk = Proteus.keys.PreKey.new(0);
       pk = Proteus.keys.PreKey.last_resort();
-      return assert(pk.key_id === Proteus.keys.PreKey.MAX_PREKEY_ID);
+      assert(pk.key_id === Proteus.keys.PreKey.MAX_PREKEY_ID);
     });
-    it('should reject invalid PreKey IDs', function() {
-      assert.throws(function() {
-        return Proteus.keys.PreKey.new(void 0);
-      });
-      assert.throws(function() {
-        return Proteus.keys.PreKey.new('foo');
-      });
-      assert.throws(function() {
-        return Proteus.keys.PreKey.new(-1);
-      });
-      assert.throws(function() {
-        return Proteus.keys.PreKey.new(65537);
-      });
-      return assert.throws(function() {
-        return Proteus.keys.PreKey.new(4242.42);
-      });
+
+    it('should reject invalid PreKey IDs', () => {
+      assert.throws(() => Proteus.keys.PreKey.new(undefined));
+      assert.throws(() => Proteus.keys.PreKey.new('foo'));
+      assert.throws(() => Proteus.keys.PreKey.new(-1));
+      assert.throws(() => Proteus.keys.PreKey.new(65537));
+      assert.throws(() => Proteus.keys.PreKey.new(4242.42));
     });
-    it('generates ranges of PreKeys', function() {
-      var prekeys;
-      prekeys = Proteus.keys.PreKey.generate_prekeys(0, 0);
+
+    it('generates ranges of PreKeys', () => {
+      let prekeys = Proteus.keys.PreKey.generate_prekeys(0, 0);
       assert.strictEqual(prekeys.length, 0);
+
       prekeys = Proteus.keys.PreKey.generate_prekeys(0, 1);
       assert.strictEqual(prekeys.length, 1);
       assert(prekeys[0].key_id === 0);
+
       prekeys = Proteus.keys.PreKey.generate_prekeys(0, 10);
       assert(prekeys.length === 10);
       assert(prekeys[0].key_id === 0);
       assert(prekeys[9].key_id === 9);
+
       prekeys = Proteus.keys.PreKey.generate_prekeys(3000, 10);
       assert(prekeys.length === 10);
       assert(prekeys[0].key_id === 3000);
-      return assert(prekeys[9].key_id === 3009);
+      assert(prekeys[9].key_id === 3009);
     });
-    return it('does not include the last resort pre key', function() {
-      var prekeys;
-      prekeys = Proteus.keys.PreKey.generate_prekeys(65530, 10);
+
+    it('does not include the last resort pre key', () => {
+      let prekeys = Proteus.keys.PreKey.generate_prekeys(65530, 10);
       assert(prekeys.length === 10);
       assert(prekeys[0].key_id === 65530);
       assert(prekeys[1].key_id === 65531);
@@ -74,21 +67,24 @@ describe('PreKey', function() {
       assert(prekeys[7].key_id === 2);
       assert(prekeys[8].key_id === 3);
       assert(prekeys[9].key_id === 4);
+
       prekeys = Proteus.keys.PreKey.generate_prekeys(Proteus.keys.PreKey.MAX_PREKEY_ID, 1);
       assert.strictEqual(prekeys.length, 1);
-      return assert(prekeys[0].key_id === 0);
+      assert(prekeys[0].key_id === 0);
     });
   });
-  return describe('Serialisation', function() {
-    return it('should serialise and deserialise correctly', function() {
-      var pk, pk_bytes, pk_copy;
-      pk = Proteus.keys.PreKey.new(0);
-      pk_bytes = pk.serialise();
-      pk_copy = Proteus.keys.PreKey.deserialise(pk_bytes);
+
+  describe('Serialisation', () => {
+    it('should serialise and deserialise correctly', () => {
+      const pk = Proteus.keys.PreKey.new(0);
+      const pk_bytes = pk.serialise();
+      const pk_copy = Proteus.keys.PreKey.deserialise(pk_bytes);
+
       assert(pk_copy.version === pk.version);
       assert(pk_copy.key_id === pk.key_id);
       assert(pk_copy.key_pair.public_key.fingerprint() === pk.key_pair.public_key.fingerprint());
-      return assert(
+
+      assert(
         sodium.to_hex(new Uint8Array(pk_bytes)) === sodium.to_hex(new Uint8Array(pk_copy.serialise()))
       );
     });

@@ -19,67 +19,83 @@
 
 'use strict';
 
-describe('PreKeyBundle', function() {
-  it('should create a bundle', function() {
-    var bundle, id_pair, prekey;
-    id_pair = Proteus.keys.IdentityKeyPair.new();
-    prekey = Proteus.keys.PreKey.new(1);
-    bundle = Proteus.keys.PreKeyBundle.new(id_pair.public_key, prekey);
-    return assert(bundle.verify() === Proteus.keys.PreKeyAuth.UNKNOWN);
-  });
-  it('should create a valid signed bundle', function() {
-    var bundle, id_pair, prekey;
-    id_pair = Proteus.keys.IdentityKeyPair.new();
-    prekey = Proteus.keys.PreKey.new(1);
-    bundle = Proteus.keys.PreKeyBundle.signed(id_pair, prekey);
-    return assert(bundle.verify() === Proteus.keys.PreKeyAuth.VALID);
-  });
-  it('should serialise and deserialise a unsigned bundle', function() {
-    var bundle, id_pair, pkb_bytes, pkb_copy, prekey;
-    id_pair = Proteus.keys.IdentityKeyPair.new();
-    prekey = Proteus.keys.PreKey.new(1);
-    bundle = Proteus.keys.PreKeyBundle.new(id_pair.public_key, prekey);
+describe('PreKeyBundle', () => {
+  it('should create a bundle', () => {
+    const id_pair = Proteus.keys.IdentityKeyPair.new();
+    const prekey = Proteus.keys.PreKey.new(1);
+    const bundle = Proteus.keys.PreKeyBundle.new(id_pair.public_key, prekey);
+
     assert(bundle.verify() === Proteus.keys.PreKeyAuth.UNKNOWN);
-    pkb_bytes = bundle.serialise();
-    pkb_copy = Proteus.keys.PreKeyBundle.deserialise(pkb_bytes);
+  });
+
+  it('should create a valid signed bundle', () => {
+    const id_pair = Proteus.keys.IdentityKeyPair.new();
+    const prekey = Proteus.keys.PreKey.new(1);
+    const bundle = Proteus.keys.PreKeyBundle.signed(id_pair, prekey);
+
+    assert(bundle.verify() === Proteus.keys.PreKeyAuth.VALID);
+  });
+
+  it('should serialise and deserialise a unsigned bundle', () => {
+    const id_pair = Proteus.keys.IdentityKeyPair.new();
+    const prekey = Proteus.keys.PreKey.new(1);
+    const bundle = Proteus.keys.PreKeyBundle.new(id_pair.public_key, prekey);
+
+    assert(bundle.verify() === Proteus.keys.PreKeyAuth.UNKNOWN);
+
+    const pkb_bytes = bundle.serialise();
+    const pkb_copy = Proteus.keys.PreKeyBundle.deserialise(pkb_bytes);
+
     assert(pkb_copy.verify() === Proteus.keys.PreKeyAuth.UNKNOWN);
+
     assert(pkb_copy.version === bundle.version);
     assert(pkb_copy.prekey_id === bundle.prekey_id);
     assert(pkb_copy.public_key.fingerprint() === bundle.public_key.fingerprint());
     assert(pkb_copy.identity_key.fingerprint() === bundle.identity_key.fingerprint());
     assert(pkb_copy.signature === bundle.signature);
-    return assert(sodium.to_hex(new Uint8Array(pkb_bytes)) === sodium.to_hex(new Uint8Array(pkb_copy.serialise())));
+
+    assert(
+      sodium.to_hex(new Uint8Array(pkb_bytes)) === sodium.to_hex(new Uint8Array(pkb_copy.serialise()))
+    );
   });
-  it('should serialise and deserialise a signed bundle', function() {
-    var bundle, id_pair, pkb_bytes, pkb_copy, prekey;
-    id_pair = Proteus.keys.IdentityKeyPair.new();
-    prekey = Proteus.keys.PreKey.new(1);
-    bundle = Proteus.keys.PreKeyBundle.signed(id_pair, prekey);
+
+  it('should serialise and deserialise a signed bundle', () => {
+    const id_pair = Proteus.keys.IdentityKeyPair.new();
+    const prekey = Proteus.keys.PreKey.new(1);
+    const bundle = Proteus.keys.PreKeyBundle.signed(id_pair, prekey);
+
     assert(bundle.verify() === Proteus.keys.PreKeyAuth.VALID);
-    pkb_bytes = bundle.serialise();
-    pkb_copy = Proteus.keys.PreKeyBundle.deserialise(pkb_bytes);
+
+    const pkb_bytes = bundle.serialise();
+    const pkb_copy = Proteus.keys.PreKeyBundle.deserialise(pkb_bytes);
+
     assert(pkb_copy.verify() === Proteus.keys.PreKeyAuth.VALID);
+
     assert(pkb_copy.version === bundle.version);
     assert(pkb_copy.prekey_id === bundle.prekey_id);
     assert(pkb_copy.public_key.fingerprint() === bundle.public_key.fingerprint());
     assert(pkb_copy.identity_key.fingerprint() === bundle.identity_key.fingerprint());
     assert(sodium.to_hex(pkb_copy.signature) === sodium.to_hex(bundle.signature));
-    return assert(sodium.to_hex(new Uint8Array(pkb_bytes)) === sodium.to_hex(new Uint8Array(pkb_copy.serialise())));
+
+    assert(
+      sodium.to_hex(new Uint8Array(pkb_bytes)) === sodium.to_hex(new Uint8Array(pkb_copy.serialise()))
+    );
   });
-  return it('should generate a serialised JSON format', function() {
-    var deserialised_pre_key_bundle, identity_key_pair, pre_key, pre_key_bundle, pre_key_id,
-        public_identity_key, serialised_array_buffer, serialised_array_buffer_view,
-        serialised_pre_key_bundle_json;
-    identity_key_pair = Proteus.keys.IdentityKeyPair.new();
-    pre_key_id = 72;
-    pre_key = Proteus.keys.PreKey.new(pre_key_id);
-    public_identity_key = identity_key_pair.public_key;
-    pre_key_bundle = Proteus.keys.PreKeyBundle.new(public_identity_key, pre_key);
-    serialised_pre_key_bundle_json = pre_key_bundle.serialised_json();
+
+  it('should generate a serialised JSON format', () => {
+    const identity_key_pair = Proteus.keys.IdentityKeyPair.new();
+    const pre_key_id = 72;
+    const pre_key = Proteus.keys.PreKey.new(pre_key_id);
+    const public_identity_key = identity_key_pair.public_key;
+    const pre_key_bundle = Proteus.keys.PreKeyBundle.new(public_identity_key, pre_key);
+    const serialised_pre_key_bundle_json = pre_key_bundle.serialised_json();
+
     assert.strictEqual(serialised_pre_key_bundle_json.id, pre_key_id);
-    serialised_array_buffer_view = sodium.from_base64(serialised_pre_key_bundle_json.key);
-    serialised_array_buffer = serialised_array_buffer_view.buffer;
-    deserialised_pre_key_bundle = Proteus.keys.PreKeyBundle.deserialise(serialised_array_buffer);
-    return assert.deepEqual(deserialised_pre_key_bundle.public_key, pre_key_bundle.public_key);
+
+    const serialised_array_buffer_view = sodium.from_base64(serialised_pre_key_bundle_json.key);
+    const serialised_array_buffer = serialised_array_buffer_view.buffer;
+    const deserialised_pre_key_bundle = Proteus.keys.PreKeyBundle.deserialise(serialised_array_buffer);
+
+    assert.deepEqual(deserialised_pre_key_bundle.public_key, pre_key_bundle.public_key);
   });
 });

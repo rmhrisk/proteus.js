@@ -19,24 +19,27 @@
 
 'use strict';
 
-describe('KeyPair', function() {
-  it('signs a message and verifies the signature', function() {
-    var _, bad_sig, i, j, kp, len, msg, sig;
-    kp = Proteus.keys.KeyPair.new();
-    msg = 'what do ya want for nothing?';
-    sig = kp.secret_key.sign(msg);
-    bad_sig = new Uint8Array(sig);
-    for (i = j = 0, len = bad_sig.length; j < len; i = ++j) {
-      _ = bad_sig[i];
+describe('KeyPair', () => {
+  it('signs a message and verifies the signature', () => {
+    const kp = Proteus.keys.KeyPair.new();
+    const msg = 'what do ya want for nothing?';
+    const sig = kp.secret_key.sign(msg);
+    const bad_sig = new Uint8Array(sig);
+
+    bad_sig.forEach((obj, i) => {
       bad_sig[i] = ~bad_sig[i];
-    }
+    });
+
     assert(kp.public_key.verify(sig, msg));
-    return assert(!kp.public_key.verify(bad_sig, msg));
+    assert(!kp.public_key.verify(bad_sig, msg));
   });
-  return it('computes a Diffie-Hellman shared secret', function() {
-    var a, b;
-    a = Proteus.keys.KeyPair.new();
-    b = Proteus.keys.KeyPair.new();
-    return assert.deepEqual(a.secret_key.shared_secret(b.public_key), b.secret_key.shared_secret(a.public_key));
+
+  it('computes a Diffie-Hellman shared secret', () => {
+    const a = Proteus.keys.KeyPair.new();
+    const b = Proteus.keys.KeyPair.new();
+    assert.deepEqual(
+      a.secret_key.shared_secret(b.public_key),
+      b.secret_key.shared_secret(a.public_key)
+    );
   });
 });
