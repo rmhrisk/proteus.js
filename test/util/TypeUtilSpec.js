@@ -19,17 +19,13 @@
 
 'use strict';
 
-describe('TypeUtil', function() {
-  it('should check one type', function() {
+describe('TypeUtil', () => {
+  it('should check one type', () => {
     Proteus.util.TypeUtil.assert_is_instance(Array, []);
-    return assert.throws(function() {
-      return Proteus.util.TypeUtil.assert_is_instance(Array, {});
-    });
+    return assert.throws(() => Proteus.util.TypeUtil.assert_is_instance(Array, {}));
   });
-  return it('should check multiple types', function() {
+  it('should check multiple types', () => {
     Proteus.util.TypeUtil.assert_is_instance([Array, String], []);
-    return assert.throws(function() {
-      return Proteus.util.TypeUtil.assert_is_instance([Array, String], {});
-    });
+    return assert.throws(() => Proteus.util.TypeUtil.assert_is_instance([Array, String], {}));
   });
 });

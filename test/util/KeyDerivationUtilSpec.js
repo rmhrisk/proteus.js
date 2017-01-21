@@ -19,35 +19,33 @@
 
 'use strict';
 
-var convert_arg_type, run_hkdf_testcase,
-  slice = [].slice;
-
-convert_arg_type = function(x) {
-  switch (false) {
-    case !!x:
-      return new Uint8Array(0);
-    case typeof x !== 'string':
-      return sodium.from_hex(x);
-    case !(x instanceof Array):
-      return new Uint8Array(x);
-    default:
-      return x;
+const convert_arg_type = (x) => {
+  if (!x) {
+    return new Uint8Array(0);
+  } else if (typeof x === 'string') {
+    return sodium.from_hex(x);
+  } else if (x instanceof Array) {
+    return new Uint8Array(x);
+  } else {
+    return x;
   }
 };
 
-run_hkdf_testcase = function(v) {
-  return it(v.case, function() {
-    var a, ref, result;
-    a = [v.salt, v.ikm, v.info].map(convert_arg_type);
-    result = sodium.to_hex((ref = Proteus.util.KeyDerivationUtil).hkdf.apply(ref, slice.call(a).concat([v.length])));
+const run_hkdf_testcase = (v) => {
+  return it(v.case, () => {
+    const a = [v.salt, v.ikm, v.info].map(convert_arg_type);
+    let ref;
+    // needs simplification
+    const result = sodium.to_hex(
+      (ref = Proteus.util.KeyDerivationUtil).hkdf.apply(ref, [].slice.call(a).concat([v.length]))
+    );
     assert(result === v.okm);
-    return assert(result.length === (v.length * 2));
+    assert(result.length === (v.length * 2));
   });
 };
 
-describe('HMAC RFC 5869 Test Vectors', function() {
-  var i, len, results, v, vectors;
-  vectors = [
+describe('HMAC RFC 5869 Test Vectors', () => {
+  const vectors = [
     {
       'case': 'works with SHA-256 (Test Case 1 from RFC 5869)',
       ikm: '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b',
@@ -69,36 +67,35 @@ describe('HMAC RFC 5869 Test Vectors', function() {
     }, {
       'case': 'works without salt',
       ikm: '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b',
-      info: void 0,
+      info: undefined,
       length: 42,
       okm: '8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8',
-      salt: void 0
+      salt: undefined
     }
   ];
-  results = [];
-  for (i = 0, len = vectors.length; i < len; i++) {
-    v = vectors[i];
+  const results = [];
+  for (let i = 0, len = vectors.length; i < len; i++) {
+    const v = vectors[i];
     results.push(run_hkdf_testcase(v));
   }
   return results;
 });
 
-describe('HMAC Real World Scenarios', function() {
-  var i, len, results, v, vectors;
-  vectors = [
+describe('HMAC Real World Scenarios', () => {
+  const vectors = [
     {
       'case': 'works with a predefined data set',
       ikm: '507ec3747913b51d9244c2d7be84cad9c71a5b04b89c49cc9e4c81dc7eb2d25c',
       info: '686173685f72617463686574',
-      salt: void 0,
+      salt: undefined,
       length: 64,
       okm: '16390fa0e7e7a9b7cd16b3e435330e18a02df7136a154e5c6e3818549c75b1b0baa38ee1d38364a45033b' +
            '42ab18448faf6f1296c928cf7c5cdf22096ba7a2d39'
     }
   ];
-  results = [];
-  for (i = 0, len = vectors.length; i < len; i++) {
-    v = vectors[i];
+  const results = [];
+  for (let i = 0, len = vectors.length; i < len; i++) {
+    const v = vectors[i];
     results.push(run_hkdf_testcase(v));
   }
   return results;
