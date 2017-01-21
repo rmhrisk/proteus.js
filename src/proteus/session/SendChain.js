@@ -19,36 +19,32 @@
 
 'use strict';
 
-var CBOR, ChainKey, ClassUtil, DontCallConstructor, KeyPair, SendChain, TypeUtil;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-DontCallConstructor = require('../errors/DontCallConstructor');
+const KeyPair = require('../keys/KeyPair');
 
-ClassUtil = require('../util/ClassUtil');
+const ChainKey = require('./ChainKey');
 
-TypeUtil = require('../util/TypeUtil');
-
-KeyPair = require('../keys/KeyPair');
-
-ChainKey = require('./ChainKey');
-
-module.exports = SendChain = (function() {
-  function SendChain() {
+module.exports = class SendChain {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  SendChain.new = function(chain_key, keypair) {
-    var sc;
+  static new (chain_key, keypair) {
     TypeUtil.assert_is_instance(ChainKey, chain_key);
     TypeUtil.assert_is_instance(KeyPair, keypair);
-    sc = ClassUtil.new_instance(SendChain);
+
+    const sc = ClassUtil.new_instance(SendChain);
     sc.chain_key = chain_key;
     sc.ratchet_key = keypair;
     return sc;
   };
 
-  SendChain.prototype.encode = function(e) {
+  encode (e) {
     e.object(2);
     e.u8(0);
     this.chain_key.encode(e);
@@ -56,12 +52,11 @@ module.exports = SendChain = (function() {
     return this.ratchet_key.encode(e);
   };
 
-  SendChain.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(SendChain);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+    const self = ClassUtil.new_instance(SendChain);
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.chain_key = ChainKey.decode(d);
@@ -77,7 +72,4 @@ module.exports = SendChain = (function() {
     TypeUtil.assert_is_instance(KeyPair, self.ratchet_key);
     return self;
   };
-
-  return SendChain;
-
-})();
+};

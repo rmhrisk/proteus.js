@@ -19,19 +19,14 @@
 
 'use strict';
 
-var PreKeyStore;
+module.exports = class PreKeyStore {
+  constructor () {}
 
-module.exports = PreKeyStore = (function() {
-  function PreKeyStore() {}
-
-  PreKeyStore.prototype.get_prekey = function(prekey_id) {
+  get_prekey (prekey_id) {
     throw Error('Virtual function unimplemented');
-  };
+  }
 
-  PreKeyStore.prototype.remove = function(prekey_id) {
+  remove (prekey_id) {
     throw Error('Virtual function unimplemented');
-  };
-
-  return PreKeyStore;
-
-})();
+  }
+};

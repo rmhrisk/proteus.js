@@ -19,53 +19,47 @@
 
 'use strict';
 
-var CBOR, CipherKey, ClassUtil, DontCallConstructor, MacKey, MessageKeys, TypeUtil;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-DontCallConstructor = require('../errors/DontCallConstructor');
+const MacKey = require('../derived/MacKey');
+const CipherKey = require('../derived/CipherKey');
 
-ClassUtil = require('../util/ClassUtil');
-
-TypeUtil = require('../util/TypeUtil');
-
-MacKey = require('../derived/MacKey');
-
-CipherKey = require('../derived/CipherKey');
-
-module.exports = MessageKeys = (function() {
-  function MessageKeys() {
+module.exports = class MessageKeys {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  MessageKeys.new = function(cipher_key, mac_key, counter) {
-    var mk;
+  static new (cipher_key, mac_key, counter) {
     TypeUtil.assert_is_instance(CipherKey, cipher_key);
     TypeUtil.assert_is_instance(MacKey, mac_key);
     TypeUtil.assert_is_integer(counter);
-    mk = ClassUtil.new_instance(MessageKeys);
+
+    const mk = ClassUtil.new_instance(MessageKeys);
     mk.cipher_key = cipher_key;
     mk.mac_key = mac_key;
     mk.counter = counter;
     return mk;
-  };
+  }
 
-  MessageKeys.prototype._counter_as_nonce = function() {
-    var nonce;
-    nonce = new ArrayBuffer(8);
+  _counter_as_nonce () {
+    const nonce = new ArrayBuffer(8);
     new DataView(nonce).setUint32(0, this.counter);
     return new Uint8Array(nonce);
-  };
+  }
 
-  MessageKeys.prototype.encrypt = function(plaintext) {
+  encrypt (plaintext) {
     return this.cipher_key.encrypt(plaintext, this._counter_as_nonce());
-  };
+  }
 
-  MessageKeys.prototype.decrypt = function(ciphertext) {
+  decrypt (ciphertext) {
     return this.cipher_key.decrypt(ciphertext, this._counter_as_nonce());
-  };
+  }
 
-  MessageKeys.prototype.encode = function(e) {
+  encode (e) {
     e.object(3);
     e.u8(0);
     this.cipher_key.encode(e);
@@ -73,14 +67,15 @@ module.exports = MessageKeys = (function() {
     this.mac_key.encode(e);
     e.u8(2);
     return e.u32(this.counter);
-  };
+  }
 
-  MessageKeys.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(MessageKeys);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(MessageKeys);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.cipher_key = CipherKey.decode(d);
@@ -95,12 +90,11 @@ module.exports = MessageKeys = (function() {
           d.skip();
       }
     }
+
     TypeUtil.assert_is_instance(CipherKey, self.cipher_key);
     TypeUtil.assert_is_instance(MacKey, self.mac_key);
     TypeUtil.assert_is_integer(self.counter);
+
     return self;
-  };
-
-  return MessageKeys;
-
-})();
+  }
+};
