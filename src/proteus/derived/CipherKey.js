@@ -19,63 +19,58 @@
 
 'use strict';
 
-var CBOR, CipherKey, ClassUtil, DontCallConstructor, TypeUtil, sodium;
+const CBOR = require('wire-webapp-cbor');
+const sodium = require('libsodium');
 
-CBOR = require('wire-webapp-cbor');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-sodium = require('libsodium');
-
-DontCallConstructor = require('../errors/DontCallConstructor');
-
-ClassUtil = require('../util/ClassUtil');
-
-TypeUtil = require('../util/TypeUtil');
-
-module.exports = CipherKey = (function() {
-  function CipherKey() {
+module.exports = class CipherKey {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  CipherKey.new = function(key) {
-    var ck;
+  static new (key) {
     TypeUtil.assert_is_instance(Uint8Array, key);
-    ck = ClassUtil.new_instance(CipherKey);
+
+    const ck = ClassUtil.new_instance(CipherKey);
     ck.key = key;
     return ck;
-  };
-
+  }
 
   /*
    * @param plaintext [String, Uint8Array, ArrayBuffer] The text to encrypt
    * @param nonce [Uint8Array] Counter as nonce
    * @return [Uint8Array] Encypted payload
    */
-
-  CipherKey.prototype.encrypt = function(plaintext, nonce) {
+  encrypt (plaintext, nonce) {
 
     // @todo Re-validate if the ArrayBuffer check is needed (Prerequisite: Integration tests)
-    if (plaintext instanceof ArrayBuffer && plaintext.byteLength !== void 0) {
+    if (plaintext instanceof ArrayBuffer && plaintext.byteLength !== undefined) {
       plaintext = new Uint8Array(plaintext);
     }
+
     return sodium.crypto_stream_chacha20_xor(plaintext, nonce, this.key, 'uint8array');
-  };
+  }
 
-  CipherKey.prototype.decrypt = function(ciphertext, nonce) {
+  decrypt (ciphertext, nonce) {
     return this.encrypt(ciphertext, nonce);
-  };
+  }
 
-  CipherKey.prototype.encode = function(e) {
+  encode (e) {
     e.object(1);
     e.u8(0);
     return e.bytes(this.key);
-  };
+  }
 
-  CipherKey.decode = function(d) {
-    var i, key_bytes, nprops, ref;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    key_bytes = null;
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    let key_bytes = null;
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           key_bytes = new Uint8Array(d.bytes());
@@ -85,8 +80,5 @@ module.exports = CipherKey = (function() {
       }
     }
     return CipherKey.new(key_bytes);
-  };
-
-  return CipherKey;
-
-})();
+  }
+};
