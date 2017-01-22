@@ -48,7 +48,7 @@ describe('Message', () => {
 
     const deserialised = Proteus.message.Message.deserialise(bytes.buffer);
     assert(deserialised.constructor === Proteus.message.CipherMessage);
-    return assert(deserialised.ratchet_key.fingerprint() === rk.fingerprint());
+    assert(deserialised.ratchet_key.fingerprint() === rk.fingerprint());
   });
 
   it('should serialise a PreKeyMessage correctly', () => {
@@ -72,6 +72,6 @@ describe('Message', () => {
     assert(deserialised.base_key.fingerprint() === bk.fingerprint());
     assert(deserialised.identity_key.fingerprint() === ik.fingerprint());
 
-    return assert(deserialised.message.ratchet_key.fingerprint() === rk.fingerprint());
+    assert(deserialised.message.ratchet_key.fingerprint() === rk.fingerprint());
   });
 });

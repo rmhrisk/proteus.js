@@ -34,11 +34,11 @@ const convert_arg_type = (x) => {
 const run_hkdf_testcase = (v) => {
   it(v.case, () => {
     const a = [v.salt, v.ikm, v.info].map(convert_arg_type);
-    let ref;
-    // needs simplification
+
     const result = sodium.to_hex(
       Proteus.util.KeyDerivationUtil.hkdf(...a, v.length)
     );
+
     assert(result === v.okm);
     assert(result.length === (v.length * 2));
   });
@@ -73,12 +73,10 @@ describe('HMAC RFC 5869 Test Vectors', () => {
       salt: undefined
     }
   ];
-  const results = [];
-  for (let i = 0, len = vectors.length; i < len; i++) {
-    const v = vectors[i];
-    results.push(run_hkdf_testcase(v));
-  }
-  return results;
+
+  vectors.forEach((v) => {
+    run_hkdf_testcase(v);
+  });
 });
 
 describe('HMAC Real World Scenarios', () => {
@@ -93,10 +91,8 @@ describe('HMAC Real World Scenarios', () => {
            '42ab18448faf6f1296c928cf7c5cdf22096ba7a2d39'
     }
   ];
-  const results = [];
-  for (let i = 0, len = vectors.length; i < len; i++) {
-    const v = vectors[i];
-    results.push(run_hkdf_testcase(v));
-  }
-  return results;
+
+  vectors.forEach((v) => {
+    run_hkdf_testcase(v);
+  });
 });

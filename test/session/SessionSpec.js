@@ -27,14 +27,14 @@ class TestStore extends Proteus.session.PreKeyStore {
 
   get_prekey (prekey_id) {
     return new Promise((resolve, reject) => {
-      return resolve(this.prekeys[prekey_id]);
+      resolve(this.prekeys[prekey_id]);
     });
   }
 
   remove (prekey_id) {
     return new Promise((resolve, reject) => {
       delete this.prekeys[prekey_id];
-      return resolve();
+      resolve();
     });
   }
 }
@@ -46,11 +46,11 @@ const assert_init_from_message = (ident, store, msg, expected) => {
     .then((x) => {
       const [s, msg] = x;
       assert.strictEqual(sodium.to_string(msg), expected);
-      return resolve(s);
+      resolve(s);
     })
 
     .catch((e) => {
-      return reject(e);
+      reject(e);
     });
   });
 };
@@ -69,7 +69,10 @@ const assert_decrypt = (expected, p) => {
 };
 
 const assert_prev_count = (session, expected) => {
-  return assert.strictEqual(expected, session.session_states[session.session_tag].state.prev_counter);
+  assert.strictEqual(
+    expected,
+    session.session_states[session.session_tag].state.prev_counter
+  );
 };
 
 const assert_serialise_deserialise = (local_identity, session) => {
@@ -78,7 +81,7 @@ const assert_serialise_deserialise = (local_identity, session) => {
   const deser = Proteus.session.Session.deserialise(local_identity, bytes);
   const deser_bytes = deser.serialise();
 
-  return assert.deepEqual(
+  assert.deepEqual(
     sodium.to_hex(new Uint8Array(bytes)),
     sodium.to_hex(new Uint8Array(deser_bytes))
   );
@@ -86,7 +89,6 @@ const assert_serialise_deserialise = (local_identity, session) => {
 
 describe('Session', () => {
   it('can be serialised and deserialised to/from CBOR', () => {
-    // needs simplification
     const [ alice_ident, bob_ident ] = [0, 1].map(
       () => Proteus.keys.IdentityKeyPair.new()
     );
@@ -97,7 +99,7 @@ describe('Session', () => {
     const bob_prekey = bob_store.prekeys[0];
     const bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
 
-    return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle)
+    Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle)
     .then((alice) => {
       assert(alice.session_states[alice.session_tag].state.recv_chains.length === 1);
       assert_serialise_deserialise(alice_ident, alice);
@@ -125,7 +127,7 @@ describe('Session', () => {
     let ping_bob_2 = null;
     let pong_alice = null;
 
-    return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle)
+    Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle)
     .then((s) => {
       alice = s;
 
@@ -258,7 +260,7 @@ describe('Session', () => {
                   bob.session_states[bob.session_tag].state.recv_chains.length,
                   Proteus.session.Session.MAX_RECV_CHAINS
                 );
-                return resolve();
+                resolve();
               });
             });
           }
@@ -335,7 +337,7 @@ describe('Session', () => {
 
           .catch((e) => {
             assert.instanceOf(e, Proteus.errors.DecryptError.DuplicateMessage);
-            return resolve();
+            resolve();
           });
         });
       }));
@@ -905,7 +907,7 @@ describe('Session', () => {
     .then((m) => {
       hello_bob3 = m;
       assert_decrypt('Hello Bob3!', bob.decrypt(bob_store2, hello_bob3));
-      return assert(Object.keys(bob.session_states).length === 1);
+      assert(Object.keys(bob.session_states).length === 1);
     })
 
     .then(() => done(), (err) => done(err));
@@ -945,7 +947,7 @@ describe('Session', () => {
           .then((hello_bob2) => {
             assert_decrypt('Hello Bob2!', bob.decrypt(bob_store, hello_bob2));
             assert.strictEqual(Object.keys(bob.session_states).length, 1);
-            return resolve();
+            resolve();
           });
         });
       }));
