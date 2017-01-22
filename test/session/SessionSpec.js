@@ -955,4 +955,63 @@ describe('Session', () => {
 
     .then(() => done(), (err) => done(err));
   });
+  it('should limit the number of sessions', (done) => {
+    const [ alice_ident, bob_ident ] = [0, 1].map(
+      () => Proteus.keys.IdentityKeyPair.new()
+    );
+    const [ alice_store, bob_store ] = [0, 1].map(
+      () => new TestStore(Proteus.keys.PreKey.generate_prekeys(0, 10))
+    );
+
+    const bob_prekey = bob_store.prekeys[0];
+    const bob_bundle = Proteus.keys.PreKeyBundle.new(bob_ident.public_key, bob_prekey);
+
+    let alice = null;
+    let bob = null;
+
+    return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle)
+    .then((s) => {
+      alice = s;
+      return alice.encrypt('Hello Bob!');
+    })
+
+    .then((hello_bob) => assert_init_from_message(bob_ident, bob_store, hello_bob, 'Hello Bob!'))
+
+    .then((s) => {
+      bob = s;
+
+      assert(alice.session_states[alice.session_tag].state.recv_chains.length === 1);
+      assert(bob.session_states[bob.session_tag].state.recv_chains.length === 1);
+
+      return Promise.all(
+        Array.from(
+          { length: Proteus.session.Session.MAX_SESSION_STATES + 1 },
+          () => {
+            return new Promise((resolve, reject) => {
+              return bob.encrypt('ping')
+              .then((m) => assert_decrypt('ping', alice.decrypt(alice_store, m)))
+
+              .then(() => alice.encrypt('pong'))
+
+              .then((m) => assert_decrypt('pong', bob.decrypt(bob_store, m)))
+
+              .then(() => {
+                assert.isAtMost(
+                  Object.keys(alice.session_states),
+                  Proteus.session.Session.MAX_SESSION_STATES
+                );
+                assert.isAtMost(
+                  Object.keys(bob.session_states),
+                  Proteus.session.Session.MAX_SESSION_STATES
+                );
+                resolve();
+              });
+            });
+          }
+        )
+      );
+    })
+
+    .then(() => done(), (err) => done(err));
+  });
 });

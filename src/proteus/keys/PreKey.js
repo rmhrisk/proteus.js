@@ -77,13 +77,7 @@ class PreKey {
       return [];
     }
 
-    return (function () {
-      let results = [];
-      for (let i = 0, ref = size - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--){
-        results.push(i);
-      }
-      return results;
-    }).apply(this).map((x) => PreKey.new((start + x) % PreKey.MAX_PREKEY_ID));
+    return [...Array(size).keys()].map((x) => PreKey.new((start + x) % PreKey.MAX_PREKEY_ID));
   }
 
   serialise () {

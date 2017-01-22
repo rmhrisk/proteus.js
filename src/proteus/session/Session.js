@@ -161,9 +161,7 @@ class Session {
       this.session_tag = tag;
     }
 
-    const obj_size = (obj) => {
-      return Object.keys(obj).length;
-    };
+    const obj_size = (obj) => Object.keys(obj).length;
 
     if (obj_size(this.session_states) < Session.MAX_SESSION_STATES) {
       return;
@@ -175,30 +173,13 @@ class Session {
   }
 
   _evict_oldest_session_state () {
-    const states = (() => {
-      let results = [];
-
-      for (let v = 0, i = 0, len = this.session_states.length; i < len; v = ++i) {
-        const k = this.session_states[v];
-        if (k.toString() !== this.session_tag.toString()) {
-          results.push([k, v]);
-        }
-      }
-      return results;
+    const oldest = Object.keys(this.session_states)
+    .filter((obj) => obj.toString() !== this.session_tag)
+    .reduce((lowest, obj, index) => {
+      return obj.idx < lowest.idx ? obj : lowest
     });
 
-    reduction = (accumulator, item) => {
-      const [ tag, val ] = item;
-      if (!accumulator || val.idx < accumulator.idx) {
-        return {
-          idx: val.idx,
-          tag: k
-        };
-      }
-      return accumulator;
-    };
-    const oldest = states.reduce(reduction, null);
-    return delete this.session_states[oldest.tag];
+    delete this.session_states[oldest.tag];
   }
 
   get_local_identity () {
