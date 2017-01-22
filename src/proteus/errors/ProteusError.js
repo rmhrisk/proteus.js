@@ -20,10 +20,8 @@
 'use strict';
 
 // @see https://gist.github.com/xdissent/d20bbdd57ca16b3d86b5, thanks
-var ProteusError;
-
-module.exports = ProteusError = (function() {
-  function ProteusError(message) {
+const ProteusError = (function () {
+  function ProteusError (message) {
     this.name = this.constructor.name;
     this.message = message;
     this.stack = (new Error).stack;
@@ -34,5 +32,6 @@ module.exports = ProteusError = (function() {
   ProteusError.prototype.constructor = ProteusError;
 
   return ProteusError;
-
 })();
+
+module.exports = ProteusError;

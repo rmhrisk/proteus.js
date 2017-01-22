@@ -19,16 +19,25 @@
 
 'use strict';
 
-var DecodeError, ProteusError,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+const extend = function (child, parent) {
+  for (let key in parent) {
+    if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key];
+  }
+  function ctor () {
+    this.constructor = child;
+  }
+  ctor.prototype = parent.prototype;
+  child.prototype = new ctor();
+  child.__super__ = parent.prototype;
+  return child;
+};
 
-ProteusError = require('./ProteusError');
+const ProteusError = require('./ProteusError');
 
-DecodeError = (function(superClass) {
+const DecodeError = (function (superClass) {
   extend(DecodeError, superClass);
 
-  function DecodeError(message) {
+  function DecodeError (message) {
     this.message = message != null ? message : 'Unknown decoding error';
   }
 
@@ -36,10 +45,10 @@ DecodeError = (function(superClass) {
 
 })(ProteusError);
 
-DecodeError.InvalidType = (function(superClass) {
+DecodeError.InvalidType = (function (superClass) {
   extend(InvalidType, superClass);
 
-  function InvalidType(message) {
+  function InvalidType (message) {
     this.message = message != null ? message : 'Invalid type';
   }
 
@@ -47,10 +56,10 @@ DecodeError.InvalidType = (function(superClass) {
 
 })(DecodeError);
 
-DecodeError.InvalidArrayLen = (function(superClass) {
+DecodeError.InvalidArrayLen = (function (superClass) {
   extend(InvalidArrayLen, superClass);
 
-  function InvalidArrayLen(message) {
+  function InvalidArrayLen (message) {
     this.message = message != null ? message : 'Invalid array length';
   }
 
@@ -58,10 +67,10 @@ DecodeError.InvalidArrayLen = (function(superClass) {
 
 })(DecodeError);
 
-DecodeError.LocalIdentityChanged = (function(superClass) {
+DecodeError.LocalIdentityChanged = (function (superClass) {
   extend(LocalIdentityChanged, superClass);
 
-  function LocalIdentityChanged(message) {
+  function LocalIdentityChanged (message) {
     this.message = message != null ? message : 'Local identity changed';
   }
 

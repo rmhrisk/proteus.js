@@ -67,7 +67,7 @@ module.exports = class IdentityKey {
     let public_key = null;
 
     const nprops = d.object();
-    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+    for (let i = 0; i <= nprops - 1; i++) {
       switch (d.u8()) {
         case 0:
           public_key = PublicKey.decode(d);

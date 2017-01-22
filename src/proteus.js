@@ -25,6 +25,7 @@ module.exports = {
     DecodeError: require('./proteus/errors/DecodeError'),
     DecryptError: require('./proteus/errors/DecryptError')
   },
+
   keys: {
     IdentityKey: require('./proteus/keys/IdentityKey'),
     IdentityKeyPair: require('./proteus/keys/IdentityKeyPair'),
@@ -35,12 +36,14 @@ module.exports = {
     PublicKey: require('./proteus/keys/PublicKey'),
     SecretKey: require('./proteus/keys/SecretKey')
   },
+
   message: {
     Message: require('./proteus/message/Message'),
     CipherMessage: require('./proteus/message/CipherMessage'),
     PreKeyMessage: require('./proteus/message/PreKeyMessage'),
     Envelope: require('./proteus/message/Envelope')
   },
+
   session: {
     PreKeyStore: require('./proteus/session/PreKeyStore'),
     Session: require('./proteus/session/Session')

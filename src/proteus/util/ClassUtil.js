@@ -21,18 +21,15 @@
 
 const DontCallConstructor = require('../errors/DontCallConstructor');
 
-module.exports = (() => {
-  return {
-    new_instance (klass) {
-      var e;
-      try {
-        return new klass();
-      } catch (e) {
-        if (!(e instanceof DontCallConstructor)) {
-          throw e;
-        }
-        return e._instance;
+module.exports = {
+  new_instance (klass) {
+    try {
+      return new klass();
+    } catch (e) {
+      if (!(e instanceof DontCallConstructor)) {
+        throw e;
       }
+      return e._instance;
     }
-  };
-})();
+  }
+};

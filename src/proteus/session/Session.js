@@ -252,8 +252,7 @@ class Session {
     .catch((error) => {
       if (error instanceof DecryptError.InvalidSignature || error instanceof DecryptError.InvalidMessage) {
         return this._new_state(prekey_store, msg).then((state) => {
-          var plaintext;
-          plaintext = state.decrypt(envelope, msg.message);
+          const plaintext = state.decrypt(envelope, msg.message);
 
           if (msg.prekey_id !== PreKey.MAX_PREKEY_ID) {
             prekey_store.remove(msg.prekey_id);
@@ -343,7 +342,7 @@ class Session {
     const self = ClassUtil.new_instance(this);
 
     const nprops = d.object();
-    for (let j = 0, ref = nprops - 1; 0 <= ref ? j <= ref : j >= ref; 0 <= ref ? j++ : j--) {
+    for (let i = 0; i <= nprops - 1; i++) {
       switch (d.u8()) {
         case 0:
           self.version = d.u8();

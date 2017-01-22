@@ -19,29 +19,27 @@
 
 'use strict';
 
-module.exports = (() => {
-  return {
-    assert_is_instance (classes, inst) {
-      if (!Array.isArray(classes)) {
-        classes = [classes];
-      }
-      if (classes.some((k) => inst instanceof k || (inst && inst.prototype instanceof k))) {
-        return;
-      }
-      const valid_types = classes.map((k) => `'${k.name}'`).join(' or ');
-      if (inst) {
-        throw TypeError(`Expected one of ${valid_types}, got '${inst.constructor.name}'.`);
-      }
-      throw TypeError(`Expected one of ${valid_types}, got '${String(inst)}'.`);
-    },
-    assert_is_integer (inst) {
-      if (Number.isInteger(inst)) {
-        return;
-      }
-      if (inst) {
-        throw new TypeError(`Expected integer, got '${inst.constructor.name}'.`);
-      }
-      throw new TypeError(`Expected integer, got '${String(inst)}'.`);
+module.exports = {
+  assert_is_instance (classes, inst) {
+    if (!Array.isArray(classes)) {
+      classes = [classes];
     }
-  };
-})();
+    if (classes.some((k) => inst instanceof k || (inst && inst.prototype instanceof k))) {
+      return;
+    }
+    const valid_types = classes.map((k) => `'${k.name}'`).join(' or ');
+    if (inst) {
+      throw TypeError(`Expected one of ${valid_types}, got '${inst.constructor.name}'.`);
+    }
+    throw TypeError(`Expected one of ${valid_types}, got '${String(inst)}'.`);
+  },
+  assert_is_integer (inst) {
+    if (Number.isInteger(inst)) {
+      return;
+    }
+    if (inst) {
+      throw new TypeError(`Expected integer, got '${inst.constructor.name}'.`);
+    }
+    throw new TypeError(`Expected integer, got '${String(inst)}'.`);
+  }
+};

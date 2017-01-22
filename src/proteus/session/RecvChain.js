@@ -88,8 +88,7 @@ class RecvChain {
     let keys = [];
     let chk = this.chain_key;
 
-    let _, i, ref;
-    for (_ = i = 0, ref = num - 1; 0 <= ref ? i <= ref : i >= ref; _ = 0 <= ref ? ++i : --i) {
+    for (let i = 0; i <= num - 1; i++) {
       keys.push(chk.message_keys());
       chk = chk.next();
     }
@@ -108,8 +107,7 @@ class RecvChain {
 
     const excess = this.message_keys.length + keys.length - RecvChain.MAX_COUNTER_GAP;
 
-    let _, i, ref;
-    for (_ = i = 0, ref = excess - 1; 0 <= ref ? i <= ref : i >= ref; _ = 0 <= ref ? ++i : --i) {
+    for (let i = 0; i <= excess - 1; i++) {
       this.message_keys.shift();
     }
 
@@ -138,7 +136,7 @@ class RecvChain {
     const self = ClassUtil.new_instance(RecvChain);
 
     const nprops = d.object();
-    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+    for (let i = 0; i <= nprops - 1; i++) {
       switch (d.u8()) {
         case 0:
           self.chain_key = ChainKey.decode(d);

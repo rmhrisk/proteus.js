@@ -74,9 +74,7 @@ describe('HMAC RFC 5869 Test Vectors', () => {
     }
   ];
 
-  vectors.forEach((v) => {
-    run_hkdf_testcase(v);
-  });
+  vectors.forEach((v) => run_hkdf_testcase(v));
 });
 
 describe('HMAC Real World Scenarios', () => {
@@ -92,7 +90,5 @@ describe('HMAC Real World Scenarios', () => {
     }
   ];
 
-  vectors.forEach((v) => {
-    run_hkdf_testcase(v);
-  });
+  vectors.forEach((v) => run_hkdf_testcase(v));
 });

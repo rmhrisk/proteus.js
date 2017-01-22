@@ -19,98 +19,99 @@
 
 'use strict';
 
-var DecryptError, ProteusError,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+const extend = function (child, parent) {
+  for (let key in parent) {
+    if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key];
+  }
+  function ctor () {
+    this.constructor = child;
+  }
+  ctor.prototype = parent.prototype;
+  child.prototype = new ctor();
+  child.__super__ = parent.prototype;
+  return child;
+};
 
-ProteusError = require('./ProteusError');
+const ProteusError = require('./ProteusError');
 
-DecryptError = (function(superClass) {
+const DecryptError = (function (superClass) {
   extend(DecryptError, superClass);
 
-  function DecryptError(message) {
-    this.message = message != null ? message : 'Unknown decryption error';
+  function DecryptError (message) {
+    this.message = (message != null ? message : 'Unknown decryption error');
   }
 
   return DecryptError;
-
 })(ProteusError);
 
-DecryptError.RemoteIdentityChanged = (function(superClass) {
+DecryptError.RemoteIdentityChanged = (function (superClass) {
   extend(RemoteIdentityChanged, superClass);
 
-  function RemoteIdentityChanged(message) {
-    this.message = message != null ? message : 'Remote identity changed';
+  function RemoteIdentityChanged (message) {
+    this.message = (message != null ? message : 'Remote identity changed');
   }
 
   return RemoteIdentityChanged;
-
 })(DecryptError);
 
-DecryptError.InvalidSignature = (function(superClass) {
+DecryptError.InvalidSignature = (function (superClass) {
   extend(InvalidSignature, superClass);
 
-  function InvalidSignature(message) {
+  function InvalidSignature (message) {
     this.message = message != null ? message : 'Invalid signature';
   }
 
   return InvalidSignature;
-
 })(DecryptError);
 
-DecryptError.InvalidMessage = (function(superClass) {
+DecryptError.InvalidMessage = (function (superClass) {
   extend(InvalidMessage, superClass);
 
-  function InvalidMessage(message) {
-    this.message = message != null ? message : 'Invalid message';
+  function InvalidMessage (message) {
+    this.message = (message != null ? message : 'Invalid message');
   }
 
   return InvalidMessage;
-
 })(DecryptError);
 
-DecryptError.DuplicateMessage = (function(superClass) {
+DecryptError.DuplicateMessage = (function (superClass) {
   extend(DuplicateMessage, superClass);
 
-  function DuplicateMessage(message) {
-    this.message = message != null ? message : 'Duplicate message';
+  function DuplicateMessage (message) {
+    this.message = (message != null ? message : 'Duplicate message');
   }
 
   return DuplicateMessage;
-
 })(DecryptError);
 
-DecryptError.TooDistantFuture = (function(superClass) {
+DecryptError.TooDistantFuture = (function (superClass) {
   extend(TooDistantFuture, superClass);
 
-  function TooDistantFuture(message) {
-    this.message = message != null ? message : 'Message is from too distant in the future';
+  function TooDistantFuture (message) {
+    this.message = (message != null ? message : 'Message is from too distant in the future');
   }
 
   return TooDistantFuture;
-
 })(DecryptError);
 
-DecryptError.OutdatedMessage = (function(superClass) {
+DecryptError.OutdatedMessage = (function (superClass) {
   extend(OutdatedMessage, superClass);
 
-  function OutdatedMessage(message) {
-    this.message = message != null ? message : 'Outdated message';
+  function OutdatedMessage (message) {
+    this.message = (message != null ? message : 'Outdated message');
   }
 
   return OutdatedMessage;
-
 })(DecryptError);
 
-DecryptError.PrekeyNotFound = (function(superClass) {
+DecryptError.PrekeyNotFound = (function (superClass) {
   extend(PrekeyNotFound, superClass);
 
-  function PrekeyNotFound(message) {
-    this.message = message != null ? message : 'Pre-key not found';
+  function PrekeyNotFound (message) {
+    this.message = (message != null ? message : 'Pre-key not found');
   }
 
   return PrekeyNotFound;
-
 })(DecryptError);
 
 module.exports = DecryptError;

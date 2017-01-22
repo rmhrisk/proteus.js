@@ -92,14 +92,14 @@ module.exports = class Envelope {
     const env = ClassUtil.new_instance(Envelope);
 
     const nprops = d.object();
-    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+    for (let i = 0; i <= nprops - 1; i++) {
       switch (d.u8()) {
         case 0:
           env.version = d.u8();
           break;
         case 1:
           const nprops_mac = d.object();
-          for (let j = 0, ref1 = nprops_mac - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; 0 <= ref1 ? j++ : j--) {
+          for (let i = 0; i <= nprops_mac - 1; i++) {
             switch (d.u8()) {
               case 0:
                 env.mac = new Uint8Array(d.bytes());
