@@ -19,14 +19,14 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, IdentityKey, PublicKey, TypeUtil, sodium;
+const CBOR = require('wire-webapp-cbor');
+const sodium = require('libsodium');
 
-CBOR = require('wire-webapp-cbor');
-sodium = require('libsodium');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-PublicKey = require('./PublicKey');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
+
+const PublicKey = require('./PublicKey');
 
 /*
  * Construct a long-term identity key pair.
@@ -34,39 +34,40 @@ PublicKey = require('./PublicKey');
  * Every client has a long-term identity key pair.
  * Long-term identity keys are used to initialise “sessions” with other clients (triple DH).
  */
-module.exports = IdentityKey = (function() {
-  function IdentityKey() {
+module.exports = class IdentityKey {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  IdentityKey.new = function(public_key) {
-    var key;
+  static new (public_key) {
     TypeUtil.assert_is_instance(PublicKey, public_key);
-    key = ClassUtil.new_instance(IdentityKey);
+
+    const key = ClassUtil.new_instance(IdentityKey);
     key.public_key = public_key;
     return key;
-  };
+  }
 
-  IdentityKey.prototype.fingerprint = function() {
+  fingerprint () {
     return this.public_key.fingerprint();
-  };
+  }
 
-  IdentityKey.prototype.toString = function() {
+  toString () {
     return sodium.to_hex(this.public_key);
-  };
+  }
 
-  IdentityKey.prototype.encode = function(e) {
+  encode (e) {
     e.object(1);
     e.u8(0);
     return this.public_key.encode(e);
-  };
+  }
 
-  IdentityKey.decode = function(d) {
-    var i, nprops, public_key, ref;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    public_key = null;
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    let public_key = null;
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           public_key = PublicKey.decode(d);
@@ -75,9 +76,7 @@ module.exports = IdentityKey = (function() {
           d.skip();
       }
     }
+
     return IdentityKey.new(public_key);
-  };
-
-  return IdentityKey;
-
-})();
+  }
+};

@@ -42,7 +42,7 @@ module.exports = class SendChain {
     sc.chain_key = chain_key;
     sc.ratchet_key = keypair;
     return sc;
-  };
+  }
 
   encode (e) {
     e.object(2);
@@ -50,7 +50,7 @@ module.exports = class SendChain {
     this.chain_key.encode(e);
     e.u8(1);
     return this.ratchet_key.encode(e);
-  };
+  }
 
   static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
@@ -71,5 +71,5 @@ module.exports = class SendChain {
     TypeUtil.assert_is_instance(ChainKey, self.chain_key);
     TypeUtil.assert_is_instance(KeyPair, self.ratchet_key);
     return self;
-  };
+  }
 };

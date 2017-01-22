@@ -80,7 +80,7 @@ module.exports = class CipherMessage extends Message {
     let cipher_text = null;
 
     const nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           session_tag = SessionTag.decode(d);

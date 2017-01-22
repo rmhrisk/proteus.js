@@ -19,46 +19,46 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, IdentityKey, IdentityKeyPair, KeyPair, SecretKey, TypeUtil;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-IdentityKey = require('./IdentityKey');
-SecretKey = require('./SecretKey');
-KeyPair = require('./KeyPair');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-module.exports = IdentityKeyPair = (function() {
-  function IdentityKeyPair() {
+const IdentityKey = require('./IdentityKey');
+const SecretKey = require('./SecretKey');
+const KeyPair = require('./KeyPair');
+
+module.exports = class IdentityKeyPair {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  IdentityKeyPair.new = function() {
-    var ikp, key_pair;
-    key_pair = KeyPair.new();
-    ikp = ClassUtil.new_instance(IdentityKeyPair);
+  static new () {
+    const key_pair = KeyPair.new();
+
+    const ikp = ClassUtil.new_instance(IdentityKeyPair);
     ikp.version = 1;
     ikp.secret_key = key_pair.secret_key;
     ikp.public_key = IdentityKey.new(key_pair.public_key);
-    return ikp;
-  };
 
-  IdentityKeyPair.prototype.serialise = function() {
-    var e;
-    e = new CBOR.Encoder();
+    return ikp;
+  }
+
+  serialise () {
+    const e = new CBOR.Encoder();
     this.encode(e);
     return e.get_buffer();
-  };
+  }
 
-  IdentityKeyPair.deserialise = function(buf) {
-    var d;
+  static deserialise (buf) {
     TypeUtil.assert_is_instance(ArrayBuffer, buf);
-    d = new CBOR.Decoder(buf);
-    return IdentityKeyPair.decode(d);
-  };
 
-  IdentityKeyPair.prototype.encode = function(e) {
+    const d = new CBOR.Decoder(buf);
+    return IdentityKeyPair.decode(d);
+  }
+
+  encode (e) {
     e.object(3);
     e.u8(0);
     e.u8(this.version);
@@ -66,14 +66,15 @@ module.exports = IdentityKeyPair = (function() {
     this.secret_key.encode(e);
     e.u8(2);
     return this.public_key.encode(e);
-  };
+  }
 
-  IdentityKeyPair.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(IdentityKeyPair);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(IdentityKeyPair);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.version = d.u8();
@@ -88,12 +89,11 @@ module.exports = IdentityKeyPair = (function() {
           d.skip();
       }
     }
+
     TypeUtil.assert_is_integer(self.version);
     TypeUtil.assert_is_instance(SecretKey, self.secret_key);
     TypeUtil.assert_is_instance(IdentityKey, self.public_key);
+
     return self;
-  };
-
-  return IdentityKeyPair;
-
-})();
+  }
+};

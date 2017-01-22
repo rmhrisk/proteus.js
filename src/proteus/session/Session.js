@@ -43,12 +43,9 @@ const SessionTag = require('../message/SessionTag');
 
 const PreKeyStore = require('./PreKeyStore');
 
-module.exports = class Session {
+class Session {
 
   constructor () {
-    this.MAX_RECV_CHAINS = 5; // static
-    this.MAX_SESSION_STATES = 100; // static
-
     this.counter = 0;
     this.local_identity = null;
     this.pending_prekey = null;
@@ -126,7 +123,7 @@ module.exports = class Session {
         }
       }).catch(reject);
     });
-  };
+  }
 
   _new_state (pre_key_store, pre_key_message) {
     return pre_key_store.get_prekey(pre_key_message.prekey_id)
@@ -168,7 +165,7 @@ module.exports = class Session {
       return Object.keys(obj).length;
     };
 
-    if (obj_size(this.session_states) < this.MAX_SESSION_STATES) {
+    if (obj_size(this.session_states) < Session.MAX_SESSION_STATES) {
       return;
     }
 
@@ -410,6 +407,11 @@ module.exports = class Session {
 
     return self;
   }
-};
+}
+
+Session.MAX_RECV_CHAINS = 5;
+Session.MAX_SESSION_STATES = 100;
+
+module.exports = Session;
 
 const SessionState = require('./SessionState');

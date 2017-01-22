@@ -19,80 +19,85 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, KeyPair, PreKey, TypeUtil;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-KeyPair = require('./KeyPair');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
+const KeyPair = require('./KeyPair');
 /*
  * Pre-generated (and regularly refreshed) pre-keys.
  * A Pre-Shared Key contains the public long-term identity and ephemeral handshake keys for the initial triple DH.
  */
-module.exports = PreKey = (function() {
-  PreKey.MAX_PREKEY_ID = 0xFFFF;
-
-  function PreKey() {
+class PreKey {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
   /*
    * @param pre_key_id [Integer]
    */
-  PreKey.new = function(pre_key_id) {
-    var pk;
+  static new (pre_key_id) {
     TypeUtil.assert_is_integer(pre_key_id);
+
     if (pre_key_id < 0 || pre_key_id > PreKey.MAX_PREKEY_ID) {
-      throw new RangeError('Argument pre_key_id (' + pre_key_id + ') must be between 0 (inclusive) and ' + PreKey.MAX_PREKEY_ID + ' (inclusive).');
+      throw new RangeError(
+        `Argument pre_key_id (${pre_key_id}) must be between 0 (inclusive) and ${PreKey.MAX_PREKEY_ID} (inclusive).`
+      );
     }
-    pk = ClassUtil.new_instance(PreKey);
+
+    const pk = ClassUtil.new_instance(PreKey);
+
     pk.version = 1;
     pk.key_id = pre_key_id;
     pk.key_pair = KeyPair.new();
     return pk;
-  };
+  }
 
-  PreKey.last_resort = function() {
+  static last_resort () {
     return PreKey.new(PreKey.MAX_PREKEY_ID);
-  };
+  }
 
-  PreKey.generate_prekeys = function(start, size) {
-    var check_integer, i, ref, results;
-    check_integer = function(value) {
+  static generate_prekeys (start, size) {
+    const check_integer = (value) => {
       TypeUtil.assert_is_integer(value);
+
       if (value < 0 || value > PreKey.MAX_PREKEY_ID) {
-        throw new RangeError('Arguments must be between 0 (inclusive) and ' + PreKey.MAX_PREKEY_ID + ' (inclusive).');
+        throw new RangeError(
+          `Arguments must be between 0 (inclusive) and ${PreKey.MAX_PREKEY_ID} (inclusive).`
+        );
       }
     };
+
     check_integer(start);
     check_integer(size);
+
     if (size === 0) {
       return [];
     }
-    return (function() {
-      results = [];
-      for (var i = 0, ref = size - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--){ results.push(i); }
-      return results;
-    }).apply(this).map(function(x) {
-      return PreKey.new((start + x) % PreKey.MAX_PREKEY_ID);
-    });
-  };
 
-  PreKey.prototype.serialise = function() {
-    var e;
-    e = new CBOR.Encoder();
+    return (function () {
+      let results = [];
+      for (let i = 0, ref = size - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--){
+        results.push(i);
+      }
+      return results;
+    }).apply(this).map((x) => PreKey.new((start + x) % PreKey.MAX_PREKEY_ID));
+  }
+
+  serialise () {
+    const e = new CBOR.Encoder();
     this.encode(e);
     return e.get_buffer();
-  };
+  }
 
-  PreKey.deserialise = function(buf) {
+  static deserialise (buf) {
     TypeUtil.assert_is_instance(ArrayBuffer, buf);
     return PreKey.decode(new CBOR.Decoder(buf));
-  };
+  }
 
-  PreKey.prototype.encode = function(e) {
+  encode (e) {
     TypeUtil.assert_is_instance(CBOR.Encoder, e);
     e.object(3);
     e.u8(0);
@@ -101,14 +106,15 @@ module.exports = PreKey = (function() {
     e.u16(this.key_id);
     e.u8(2);
     return this.key_pair.encode(e);
-  };
+  }
 
-  PreKey.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(PreKey);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(PreKey);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.version = d.u8();
@@ -123,12 +129,14 @@ module.exports = PreKey = (function() {
           d.skip();
       }
     }
+
     TypeUtil.assert_is_integer(self.version);
     TypeUtil.assert_is_integer(self.key_id);
     TypeUtil.assert_is_instance(KeyPair, self.key_pair);
+
     return self;
-  };
+  }
+}
 
-  return PreKey;
-
-})();
+PreKey.MAX_PREKEY_ID = 0xFFFF;
+module.exports = PreKey;

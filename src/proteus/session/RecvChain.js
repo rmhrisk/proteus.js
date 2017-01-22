@@ -36,10 +36,9 @@ const CipherMessage = require('../message/CipherMessage');
 const MessageKeys = require('./MessageKeys');
 const ChainKey = require('./ChainKey');
 
-module.exports = class RecvChain {
+class RecvChain {
 
   constructor () {
-    this.MAX_COUNTER_GAP = 1000;  // static
     throw new DontCallConstructor(this);
   }
 
@@ -167,4 +166,8 @@ module.exports = class RecvChain {
 
     return self;
   }
-};
+}
+
+RecvChain.MAX_COUNTER_GAP = 1000;
+
+module.exports = RecvChain;

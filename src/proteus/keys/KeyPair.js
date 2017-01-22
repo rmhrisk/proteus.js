@@ -19,33 +19,34 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, KeyPair, PublicKey, SecretKey, TypeUtil, ed2curve, sodium;
+const CBOR = require('wire-webapp-cbor');
+const ed2curve = require('ed2curve');
+const sodium = require('libsodium');
 
-CBOR = require('wire-webapp-cbor');
-ed2curve = require('ed2curve');
-sodium = require('libsodium');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-PublicKey = require('./PublicKey');
-SecretKey = require('./SecretKey');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
+const PublicKey = require('./PublicKey');
+const SecretKey = require('./SecretKey');
 
-// Construct an ephemeral key pair.
-
-module.exports = KeyPair = (function() {
-  function KeyPair() {
+/*
+ * Construct an ephemeral key pair.
+ */
+module.exports = class KeyPair {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  KeyPair.new = function() {
-    var ed25519_key_pair, kp;
-    ed25519_key_pair = sodium.crypto_sign_keypair();
-    kp = ClassUtil.new_instance(KeyPair);
+  static new () {
+    const ed25519_key_pair = sodium.crypto_sign_keypair();
+
+    const kp = ClassUtil.new_instance(KeyPair);
     kp.secret_key = KeyPair.prototype._construct_private_key(ed25519_key_pair);
     kp.public_key = KeyPair.prototype._construct_public_key(ed25519_key_pair);
+
     return kp;
-  };
+  }
 
   /*
    * @note Ed25519 keys can be converted to Curve25519 keys, so that the same key pair can be used both for authenticated encryption (crypto_box) and for signatures (crypto_sign).
@@ -56,38 +57,39 @@ module.exports = KeyPair = (function() {
    * @return [Proteus.keys.SecretKey] Constructed private key
    * @see https://download.libsodium.org/doc/advanced/ed25519-curve25519.html
    */
-  KeyPair.prototype._construct_private_key = function(ed25519_key_pair) {
-    var sk_curve25519, sk_ed25519;
-    sk_ed25519 = ed25519_key_pair.privateKey;
-    sk_curve25519 = ed2curve.convertSecretKey(sk_ed25519);
+  _construct_private_key (ed25519_key_pair) {
+    const sk_ed25519 = ed25519_key_pair.privateKey;
+    const sk_curve25519 = ed2curve.convertSecretKey(sk_ed25519);
     return SecretKey.new(sk_ed25519, sk_curve25519);
-  };
+  }
 
   /*
    * @param ed25519_key_pair [libsodium.KeyPair] Key pair based on Edwards-curve (Ed25519)
    * @return [Proteus.keys.PublicKey] Constructed public key
    */
-  KeyPair.prototype._construct_public_key = function(ed25519_key_pair) {
-    var pk_curve25519, pk_ed25519;
-    pk_ed25519 = ed25519_key_pair.publicKey;
-    pk_curve25519 = ed2curve.convertPublicKey(pk_ed25519);
+  _construct_public_key (ed25519_key_pair) {
+    const pk_ed25519 = ed25519_key_pair.publicKey;
+    const pk_curve25519 = ed2curve.convertPublicKey(pk_ed25519);
     return PublicKey.new(pk_ed25519, pk_curve25519);
-  };
+  }
 
-  KeyPair.prototype.encode = function(e) {
+  encode (e) {
     e.object(2);
+
     e.u8(0);
     this.secret_key.encode(e);
+
     e.u8(1);
     return this.public_key.encode(e);
-  };
+  }
 
-  KeyPair.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(KeyPair);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(KeyPair);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.secret_key = SecretKey.decode(d);
@@ -99,11 +101,10 @@ module.exports = KeyPair = (function() {
           d.skip();
       }
     }
+
     TypeUtil.assert_is_instance(SecretKey, self.secret_key);
     TypeUtil.assert_is_instance(PublicKey, self.public_key);
+
     return self;
-  };
-
-  return KeyPair;
-
-})();
+  }
+};

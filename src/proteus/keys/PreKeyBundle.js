@@ -19,21 +19,21 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, IdentityKey, IdentityKeyPair, PreKey, PreKeyAuth, PreKeyBundle, PublicKey, TypeUtil, sodium;
+const CBOR = require('wire-webapp-cbor');
+const sodium = require('libsodium');
 
-CBOR = require('wire-webapp-cbor');
-sodium = require('libsodium');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-IdentityKeyPair = require('./IdentityKeyPair');
-IdentityKey = require('./IdentityKey');
-PreKeyAuth = require('./PreKeyAuth');
-PublicKey = require('./PublicKey');
-PreKey = require('./PreKey');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
 
-module.exports = PreKeyBundle = (function() {
-  function PreKeyBundle() {
+const IdentityKeyPair = require('./IdentityKeyPair');
+const IdentityKey = require('./IdentityKey');
+const PreKeyAuth = require('./PreKeyAuth');
+const PublicKey = require('./PublicKey');
+const PreKey = require('./PreKey');
+
+module.exports = class PreKeyBundle {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
@@ -41,65 +41,71 @@ module.exports = PreKeyBundle = (function() {
    * @param public_identity_key [Proteus.keys.IdentityKey]
    * @param prekey [Proteus.keys.PreKey]
    */
-  PreKeyBundle.new = function(public_identity_key, prekey) {
-    var bundle;
+  static new (public_identity_key, prekey) {
     TypeUtil.assert_is_instance(IdentityKey, public_identity_key);
     TypeUtil.assert_is_instance(PreKey, prekey);
-    bundle = ClassUtil.new_instance(PreKeyBundle);
+
+    const bundle = ClassUtil.new_instance(PreKeyBundle);
+
     bundle.version = 1;
     bundle.prekey_id = prekey.key_id;
     bundle.public_key = prekey.key_pair.public_key;
     bundle.identity_key = public_identity_key;
     bundle.signature = null;
-    return bundle;
-  };
 
-  PreKeyBundle.signed = function(identity_pair, prekey) {
-    var bundle, ratchet_key, signature;
+    return bundle;
+  }
+
+  static signed (identity_pair, prekey) {
     TypeUtil.assert_is_instance(IdentityKeyPair, identity_pair);
     TypeUtil.assert_is_instance(PreKey, prekey);
-    ratchet_key = prekey.key_pair.public_key;
-    signature = identity_pair.secret_key.sign(ratchet_key.pub_edward);
-    bundle = ClassUtil.new_instance(PreKeyBundle);
+
+    const ratchet_key = prekey.key_pair.public_key;
+    const signature = identity_pair.secret_key.sign(ratchet_key.pub_edward);
+
+    const bundle = ClassUtil.new_instance(PreKeyBundle);
+
     bundle.version = 1;
     bundle.prekey_id = prekey.key_id;
     bundle.public_key = ratchet_key;
     bundle.identity_key = identity_pair.public_key;
     bundle.signature = signature;
-    return bundle;
-  };
 
-  PreKeyBundle.prototype.verify = function() {
+    return bundle;
+  }
+
+  verify () {
     if (!this.signature) {
       return PreKeyAuth.UNKNOWN;
     }
+
     if (this.identity_key.public_key.verify(this.signature, this.public_key.pub_edward)) {
       return PreKeyAuth.VALID;
     }
     return PreKeyAuth.INVALID;
-  };
+  }
 
-  PreKeyBundle.prototype.serialise = function() {
-    var e;
-    e = new CBOR.Encoder();
+  serialise () {
+    const e = new CBOR.Encoder();
     this.encode(e);
     return e.get_buffer();
-  };
+  }
 
-  PreKeyBundle.prototype.serialised_json = function() {
+  serialised_json () {
     return {
       'id': this.prekey_id,
       'key': sodium.to_base64(new Uint8Array(this.serialise()), true)
     };
-  };
+  }
 
-  PreKeyBundle.deserialise = function(buf) {
+  static deserialise (buf) {
     TypeUtil.assert_is_instance(ArrayBuffer, buf);
     return PreKeyBundle.decode(new CBOR.Decoder(buf));
-  };
+  }
 
-  PreKeyBundle.prototype.encode = function(e) {
+  encode (e) {
     TypeUtil.assert_is_instance(CBOR.Encoder, e);
+
     e.object(5);
     e.u8(0);
     e.u8(this.version);
@@ -109,20 +115,22 @@ module.exports = PreKeyBundle = (function() {
     this.public_key.encode(e);
     e.u8(3);
     this.identity_key.encode(e);
+
     e.u8(4);
     if (!this.signature) {
       return e.null();
     } else {
       return e.bytes(this.signature);
     }
-  };
+  }
 
-  PreKeyBundle.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(PreKeyBundle);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(PreKeyBundle);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.version = d.u8();
@@ -137,21 +145,18 @@ module.exports = PreKeyBundle = (function() {
           self.identity_key = IdentityKey.decode(d);
           break;
         case 4:
-          self.signature = d.optional(function() {
-            return new Uint8Array(d.bytes());
-          });
+          self.signature = d.optional(() => new Uint8Array(d.bytes()));
           break;
         default:
           d.skip();
       }
     }
+
     TypeUtil.assert_is_integer(self.version);
     TypeUtil.assert_is_integer(self.prekey_id);
     TypeUtil.assert_is_instance(PublicKey, self.public_key);
     TypeUtil.assert_is_instance(IdentityKey, self.identity_key);
+
     return self;
-  };
-
-  return PreKeyBundle;
-
-})();
+  }
+};

@@ -19,31 +19,30 @@
 
 'use strict';
 
-var CBOR, ClassUtil, DontCallConstructor, PublicKey, SecretKey, TypeUtil, ed2curve, sodium;
+const CBOR = require('wire-webapp-cbor');
 
-CBOR = require('wire-webapp-cbor');
-ed2curve = require('ed2curve');
-sodium = require('libsodium');
-DontCallConstructor = require('../errors/DontCallConstructor');
-ClassUtil = require('../util/ClassUtil');
-TypeUtil = require('../util/TypeUtil');
-PublicKey = require('./PublicKey');
+const ed2curve = require('ed2curve');
+const sodium = require('libsodium');
+const DontCallConstructor = require('../errors/DontCallConstructor');
+const ClassUtil = require('../util/ClassUtil');
+const TypeUtil = require('../util/TypeUtil');
+const PublicKey = require('./PublicKey');
 
-module.exports = SecretKey = (function() {
-  function SecretKey() {
+module.exports = class SecretKey {
+  constructor () {
     throw new DontCallConstructor(this);
   }
 
-  SecretKey.new = function(sec_edward, sec_curve) {
-    var sk;
+  static new (sec_edward, sec_curve) {
     TypeUtil.assert_is_instance(Uint8Array, sec_edward);
     TypeUtil.assert_is_instance(Uint8Array, sec_curve);
-    sk = ClassUtil.new_instance(SecretKey);
+
+    const sk = ClassUtil.new_instance(SecretKey);
+
     sk.sec_edward = sec_edward;
     sk.sec_curve = sec_curve;
     return sk;
-  };
-
+  }
 
   /*
    * This function can be used to compute a message signature.
@@ -51,10 +50,9 @@ module.exports = SecretKey = (function() {
    * @param message [String] Message to be signed
    * @return [Uint8Array] A message signature
    */
-
-  SecretKey.prototype.sign = function(message) {
+  sign (message) {
     return sodium.crypto_sign_detached(message, this.sec_edward);
-  };
+  }
 
   /*
    * This function can be used to compute a shared secret given a user's secret key and another
@@ -63,23 +61,25 @@ module.exports = SecretKey = (function() {
    * @param public_key [Proteus.keys.PublicKey] Another user's public key
    * @return [Uint8Array] Array buffer view of the computed shared secret
    */
-  SecretKey.prototype.shared_secret = function(public_key) {
+  shared_secret (public_key) {
     TypeUtil.assert_is_instance(PublicKey, public_key);
-    return sodium.crypto_scalarmult(this.sec_curve, public_key.pub_curve);
-  };
 
-  SecretKey.prototype.encode = function(e) {
+    return sodium.crypto_scalarmult(this.sec_curve, public_key.pub_curve);
+  }
+
+  encode (e) {
     e.object(1);
     e.u8(0);
     return e.bytes(this.sec_edward);
-  };
+  }
 
-  SecretKey.decode = function(d) {
-    var i, nprops, ref, self;
+  static decode (d) {
     TypeUtil.assert_is_instance(CBOR.Decoder, d);
-    self = ClassUtil.new_instance(SecretKey);
-    nprops = d.object();
-    for (i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
+
+    const self = ClassUtil.new_instance(SecretKey);
+
+    const nprops = d.object();
+    for (let i = 0, ref = nprops - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--) {
       switch (d.u8()) {
         case 0:
           self.sec_edward = new Uint8Array(d.bytes());
@@ -88,11 +88,10 @@ module.exports = SecretKey = (function() {
           d.skip();
       }
     }
+
     TypeUtil.assert_is_instance(Uint8Array, self.sec_edward);
+
     self.sec_curve = ed2curve.convertSecretKey(self.sec_edward);
     return self;
-  };
-
-  return SecretKey;
-
-})();
+  }
+};

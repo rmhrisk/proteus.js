@@ -98,7 +98,7 @@ module.exports = class Envelope {
           env.version = d.u8();
           break;
         case 1:
-          nprops_mac = d.object();
+          const nprops_mac = d.object();
           for (let j = 0, ref1 = nprops_mac - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; 0 <= ref1 ? j++ : j--) {
             switch (d.u8()) {
               case 0:
