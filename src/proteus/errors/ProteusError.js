@@ -28,7 +28,6 @@ const ProteusError = (function () {
   }
 
   ProteusError.prototype = new Error;
-
   ProteusError.prototype.constructor = ProteusError;
 
   return ProteusError;

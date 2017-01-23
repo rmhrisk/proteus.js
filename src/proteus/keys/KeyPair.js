@@ -49,7 +49,8 @@ module.exports = class KeyPair {
   }
 
   /*
-   * @note Ed25519 keys can be converted to Curve25519 keys, so that the same key pair can be used both for authenticated encryption (crypto_box) and for signatures (crypto_sign).
+   * @note Ed25519 keys can be converted to Curve25519 keys, so that the same key pair can be
+   * used both for authenticated encryption (crypto_box) and for signatures (crypto_sign).
    * @param ed25519_key_pair [Object] Key pair based on Edwards-curve (Ed25519)
    * @option ed25519_key_pair [Uint8Array[32]] publicKey
    * @option ed25519_key_pair [Uint8Array[64]] privateKey

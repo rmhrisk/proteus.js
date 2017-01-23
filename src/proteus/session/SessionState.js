@@ -116,8 +116,11 @@ module.exports = class SessionState {
   ratchet (ratchet_key) {
     const new_ratchet = KeyPair.new();
 
-    const [ recv_root_key, recv_chain_key ] = this.root_key.dh_ratchet(this.send_chain.ratchet_key, ratchet_key);
-    const [ send_root_key, send_chain_key ] = recv_root_key.dh_ratchet(new_ratchet, ratchet_key);
+    const [ recv_root_key, recv_chain_key ] =
+      this.root_key.dh_ratchet(this.send_chain.ratchet_key, ratchet_key);
+
+    const [ send_root_key, send_chain_key ] =
+      recv_root_key.dh_ratchet(new_ratchet, ratchet_key);
 
     const recv_chain = RecvChain.new(recv_chain_key, ratchet_key);
     const send_chain = SendChain.new(send_chain_key, new_ratchet);

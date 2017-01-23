@@ -92,7 +92,9 @@ class Session {
 
       const pkmsg = (() => {
         if (envelope.message instanceof CipherMessage) {
-          throw new DecryptError.InvalidMessage('Can\'t initialise a session from a CipherMessage.');
+          throw new DecryptError.InvalidMessage(
+            'Can\'t initialise a session from a CipherMessage.'
+          );
         } else if (envelope.message instanceof PreKeyMessage) {
           return envelope.message;
         } else {
@@ -175,7 +177,9 @@ class Session {
   _evict_oldest_session_state () {
     const oldest = Object.keys(this.session_states)
     .filter((obj) => obj.toString() !== this.session_tag)
-    .reduce((lowest, obj, index) => obj.idx < lowest.idx ? obj : lowest, '');
+    .reduce((lowest, obj, index) => {
+      return obj.idx < lowest.idx ? obj : lowest;
+    }, '');
 
     delete this.session_states[oldest];
   }
@@ -229,7 +233,8 @@ class Session {
     return Promise.resolve()
     .then(() => this._decrypt_cipher_message(envelope, msg.message))
     .catch((error) => {
-      if (error instanceof DecryptError.InvalidSignature || error instanceof DecryptError.InvalidMessage) {
+      if (error instanceof DecryptError.InvalidSignature
+          || error instanceof DecryptError.InvalidMessage) {
         return this._new_state(prekey_store, msg).then((state) => {
           const plaintext = state.decrypt(envelope, msg.message);
 
@@ -251,7 +256,8 @@ class Session {
     let state = this.session_states[msg.session_tag];
     if (!state) {
       throw new DecryptError.InvalidMessage(
-        `We received a message with session tag '${(msg.session_tag || '').toString()}', but we don't have a session for this tag.`
+        `We received a message with session tag '${(msg.session_tag || '').toString()}', but we ` +
+        `don't have a session for this tag.`
       );
     }
 
@@ -362,8 +368,8 @@ class Session {
           break;
         case 5:
           self.session_states = {};
-          let i, l, ref1;
-          for (i = l = 0, ref1 = d.object() - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; i = 0 <= ref1 ? ++l : --l) {
+          // needs simplification
+          for (let i = 0, j = 0, ref = d.object() - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
             const tag = SessionTag.decode(d);
             self.session_states[tag] = {
               idx: i,
