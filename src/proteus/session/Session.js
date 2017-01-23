@@ -175,11 +175,9 @@ class Session {
   _evict_oldest_session_state () {
     const oldest = Object.keys(this.session_states)
     .filter((obj) => obj.toString() !== this.session_tag)
-    .reduce((lowest, obj, index) => {
-      return obj.idx < lowest.idx ? obj : lowest
-    });
+    .reduce((lowest, obj, index) => obj.idx < lowest.idx ? obj : lowest, '');
 
-    delete this.session_states[oldest.tag];
+    delete this.session_states[oldest];
   }
 
   get_local_identity () {

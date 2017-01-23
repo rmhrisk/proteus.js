@@ -997,11 +997,11 @@ describe('Session', () => {
 
               .then(() => {
                 assert.isAtMost(
-                  Object.keys(alice.session_states),
+                  Object.keys(alice.session_states).length,
                   Proteus.session.Session.MAX_SESSION_STATES
                 );
                 assert.isAtMost(
-                  Object.keys(bob.session_states),
+                  Object.keys(bob.session_states).length,
                   Proteus.session.Session.MAX_SESSION_STATES
                 );
                 resolve();
