@@ -178,8 +178,8 @@ class Session {
     const oldest = Object.keys(this.session_states)
     .filter((obj) => obj.toString() !== this.session_tag)
     .reduce((lowest, obj, index) => {
-      return obj.idx < lowest.idx ? obj : lowest;
-    }, '');
+      return this.session_states[obj].idx < this.session_states[lowest].idx ? obj.toString() : lowest;
+    });
 
     delete this.session_states[oldest];
   }
