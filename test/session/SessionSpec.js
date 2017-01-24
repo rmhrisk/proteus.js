@@ -1024,14 +1024,14 @@ describe('Session', () => {
 
     const bob_bundle = (i, store) => Proteus.keys.PreKeyBundle.new(bob_ident.public_key, store.prekeys[i]);
 
+    let alice = null;
+    let bob = null;
     let hello_bob = null;
-    let alice2bob = null;
-    let bob2alice = null;
 
     return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle(1, bob_store))
     .then((s) => {
-      alice2bob = s;
-      return alice2bob.encrypt('Hello Bob!');
+      alice = s;
+      return alice.encrypt('Hello Bob!');
     })
 
     .then((m) => {
@@ -1041,35 +1041,32 @@ describe('Session', () => {
 
 
     .then((s) => {
-      bob2alice = s;
-      assert(Object.keys(bob2alice.session_states).length === 1);
+      bob = s;
+      assert(Object.keys(bob.session_states).length === 1);
 
       return Promise.all(
-        Array.from(
-          { length: (Proteus.session.Session.MAX_SESSION_STATES) },
-          (obj, i) => {
-            return new Promise((resolve, reject) => {
-              return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle(i+2, bob_store))
-              .then((s) => {
-                alice2bob = s;
-                return alice2bob.encrypt('Hello Bob!');
-              })
+        Array.from({ length: (Proteus.session.Session.MAX_SESSION_STATES) }, (obj, i) => {
+          return new Promise((resolve, reject) => {
+            return Proteus.session.Session.init_from_prekey(alice_ident, bob_bundle(i + 2, bob_store))
+            .then((s) => {
+              alice = s;
+              return alice.encrypt('Hello Bob!');
+            })
 
-              .then((m) => {
-                hello_bob = m;
-                assert_decrypt('Hello Bob!', bob2alice.decrypt(bob_store, m))
-              })
+            .then((m) => {
+              hello_bob = m;
+              assert_decrypt('Hello Bob!', bob.decrypt(bob_store, m))
+            })
 
-              .then(() => resolve(), err => reject(err))
-            });
-          }
-        )
+            .then(() => resolve(), err => reject(err))
+          });
+        })
       );
     })
 
     .then(() => {
-      assert.isAtMost(Object.keys(alice2bob.session_states).length, Proteus.session.Session.MAX_SESSION_STATES)
-      assert.isAtMost(Object.keys(bob2alice.session_states).length, Proteus.session.Session.MAX_SESSION_STATES)
+      assert.isAtMost(Object.keys(alice.session_states).length, Proteus.session.Session.MAX_SESSION_STATES)
+      assert.isAtMost(Object.keys(bob.session_states).length, Proteus.session.Session.MAX_SESSION_STATES)
     })
 
     .then((() => done()), err => done(err))
